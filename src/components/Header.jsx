@@ -30,9 +30,9 @@ export default function Header() {
                     {/* Navegación Desktop */}
                     <nav className="hidden md:flex space-x-8">
                         <Link href="/" className="text-sm font-medium text-black hover:text-gray-500 uppercase tracking-wide transition-colors">Inicio</Link>
-                        <Link href="/catalogo" className="text-sm font-medium text-black hover:text-gray-500 uppercase tracking-wide transition-colors">Poleras</Link>
-                        <Link href="/catalogo" className="text-sm font-medium text-black hover:text-gray-500 uppercase tracking-wide transition-colors">Beanie</Link>
-                        <Link href="/catalogo" className="text-sm font-medium text-black hover:text-gray-500 uppercase tracking-wide transition-colors">Trucker Hat</Link>
+                        <Link href="/catalogo" className="text-sm font-medium text-black hover:text-gray-500 uppercase tracking-wide transition-colors">Drop</Link>
+                        <Link href="/catalogo?categoria=beanie" className="text-sm font-medium text-black hover:text-gray-500 uppercase tracking-wide transition-colors">Beanies</Link>
+                        <Link href="/catalogo?categoria=trucker" className="text-sm font-medium text-black hover:text-gray-500 uppercase tracking-wide transition-colors">Trucker Hats</Link>
                     </nav>
 
                     {/* Iconos (Buscar, Cuenta, Carrito) */}

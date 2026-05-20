@@ -7,7 +7,7 @@ export default function ProductCard({ product }) {
       {/* 1. CONTENEDOR DE LA IMAGEN */}
       <div className="relative aspect-[3/4] bg-gray-900 overflow-hidden mb-5">
         <img
-          src={product.imageUrl}
+          src={product.image}
           alt={product.name}
           className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-in-out"
         />

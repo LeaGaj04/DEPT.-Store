@@ -1,28 +1,26 @@
 import Link from "next/link";
-import Image from "next/image"; // Importamos el optimizador de imágenes de Next.js
+import Image from "next/image";
 import ProductCard from "../components/ProductCard";
 import { mockProducts } from "../data/mockData";
 
 export default function Home() {
+  // Separamos de forma automática la data para el Inicio
+  const beanies = mockProducts.filter(p => p.category === "beanie").slice(0, 4);
+  const truckers = mockProducts.filter(p => p.category === "trucker").slice(0, 4);
+
   return (
     <div className="flex flex-col w-full bg-black min-h-screen">
 
-      {/* 1. HERO SECTION (Totalmente inmersivo de borde a borde) */}
+      {/* 1. HERO SECTION */}
       <section className="relative w-full h-[85vh] flex items-center justify-center overflow-hidden">
-
-        {/* Tu imagen de fondo optimizada */}
         <Image
-          src="/Gorros1.jpg" // Ruta a tu foto en la carpeta public
+          src="/Gorros1.jpg"
           alt="DEPT. Streetwear Hero"
-          fill // Hace que ocupe todo el contenedor
-          className="object-cover object-center" // Se estira de borde a borde sin deformarse
-          priority // Le dice a Next.js que la cargue de inmediato
+          fill
+          className="object-cover object-center"
+          priority
         />
-
-        {/* Capa oscura sutil encima de la foto para que el texto blanco resalte perfecto */}
         <div className="absolute inset-0 bg-black/40 z-0" />
-
-        {/* Contenido encima de la imagen */}
         <div className="relative z-10 flex flex-col items-center text-center px-4">
           <h1 className="text-6xl md:text-8xl font-black text-white uppercase tracking-tighter mb-6 drop-shadow-xl select-none">
             D<span className="text-red-600">E</span>PT. Streetwear
@@ -36,24 +34,43 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 2. NUEVO DROP */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
-        <div className="flex justify-between items-end mb-8">
-          <h2 className="text-2xl font-bold uppercase tracking-tight text-white">Nuevo Drop</h2>
-          <Link href="/catalogo" className="text-sm font-medium underline uppercase tracking-wide text-gray-400 hover:text-white transition-colors">
-            Ver todo
+      {/* 2. SECCIÓN: BEANIES */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
+        <div className="flex justify-between items-end mb-8 border-b border-gray-800 pb-4">
+          <div>
+            <h2 className="text-3xl font-black uppercase tracking-tight text-white">Beanies</h2>
+            <p className="text-gray-400 text-xs md:text-sm mt-1 font-medium uppercase tracking-wider">Gorros esenciales de punto pesado</p>
+          </div>
+          <Link href="/catalogo?categoria=beanie" className="text-sm font-medium underline uppercase tracking-wide text-gray-400 hover:text-white transition-colors">
+            Ver todos los Beanies
           </Link>
         </div>
-
-        {/* Grid de productos */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-6">
-          {mockProducts.map((product) => (
+          {beanies.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </section>
 
-      {/* 3. SECCIÓN DE MARCA */}
+      {/* 3. SECCIÓN: TRUCKER HATS */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 w-full">
+        <div className="flex justify-between items-end mb-8 border-b border-gray-800 pb-4">
+          <div>
+            <h2 className="text-3xl font-black uppercase tracking-tight text-white">Trucker Hats</h2>
+            <p className="text-gray-400 text-xs md:text-sm mt-1 font-medium uppercase tracking-wider">Gorras estructuradas con malla urbana</p>
+          </div>
+          <Link href="/catalogo?categoria=trucker" className="text-sm font-medium underline uppercase tracking-wide text-gray-400 hover:text-white transition-colors">
+            Ver todas las Truckers
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-6">
+          {truckers.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      </section>
+
+      {/* 4. SECCIÓN DE MARCA */}
       <section className="bg-white py-24 border-t border-gray-200">
         <div className="max-w-3xl mx-auto text-center px-4">
           <h2 className="text-3xl font-black uppercase tracking-tighter mb-6 text-black">
@@ -61,7 +78,6 @@ export default function Home() {
           </h2>
           <p className="text-black font-medium text-lg leading-relaxed">
             Diseñamos prendas con cortes oversize, materiales pesados de alta calidad y una estética minimalista.
-            No seguimos tendencias, creamos básicos urbanos que duran toda la vida.
           </p>
         </div>
       </section>

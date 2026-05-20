@@ -1,34 +1,13 @@
 export const mockProducts = [
-  {
-    id: "1",
-    name: "Heavyweight Boxy Tee Black",
-    category: "Poleras",
-    price: 25000,
-    status: "Disponible",
-    imageUrl: "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    id: "2",
-    name: "Donellz Signature Hoodie",
-    category: "Hoodies",
-    price: 45000,
-    status: "Disponible",
-    imageUrl: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    id: "3",
-    name: "Cargo Parachute Pants",
-    category: "Pantalones",
-    price: 40000,
-    status: "Agotado",
-    imageUrl: "https://images.unsplash.com/photo-1624378439575-d8705ad7ae80?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    id: "4",
-    name: "Logo Beanie Grey",
-    category: "Accesorios",
-    price: 15000,
-    status: "Disponible",
-    imageUrl: "https://images.unsplash.com/photo-1576871337622-98d48d1cf531?auto=format&fit=crop&q=80&w=800",
-  }
+  // 4 BEANIES (Gorrros)
+  { id: 1, name: "Core Beanie Black", price: 25000, category: "beanie", image: "/products/beanie-black.jpg" },
+  { id: 2, name: "Ribbed Beanie Grey", price: 25000, category: "beanie", image: "/products/beanie-black.jpg" },
+  { id: 3, name: "Street Beanie Olive", price: 25000, category: "beanie", image: "/products/beanie-black.jpg" },
+  { id: 4, name: "Urban Beanie Navy", price: 25000, category: "beanie", image: "/products/beanie-black.jpg" },
+
+  // 4 TRUCKER HATS (Gorras)
+  { id: 5, name: "Classic Trucker White/Black", price: 28000, category: "trucker", image: "/products/trucker-classic.jpg" },
+  { id: 6, name: "Retro Trucker All Black", price: 28000, category: "trucker", image: "/products/trucker-classic.jpg" },
+  { id: 7, name: "Militant Trucker Camo", price: 28000, category: "trucker", image: "/products/trucker-classic.jpg" },
+  { id: 8, name: "Disruptive Trucker Red", price: 28000, category: "trucker", image: "/products/trucker-classic.jpg" },
 ];
