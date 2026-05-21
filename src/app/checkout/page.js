@@ -35,7 +35,7 @@ export default function CheckoutPage() {
       })),
       total: getCartTotal(),
       metodoPago: metodoPago,
-      estadoPago: estadoPago, // "pendiente_transferencia", "pagado", etc.
+      estadoPago: estadoPago, // "pendiente_transferencia", "pendiente_pago_mp", etc.
       fecha: serverTimestamp(),
     };
 
@@ -47,7 +47,7 @@ export default function CheckoutPage() {
   const handlePagar = async (e) => {
     e.preventDefault();
     if (cartItems.length === 0) return alert("Tu carrito está vacío");
-    
+
     setProcesando(true);
 
     try {
@@ -57,9 +57,33 @@ export default function CheckoutPage() {
         setPedidoCompletado({ id: pedidoId, tipo: "transferencia" });
         clearCart(); // Limpiamos el carro del cliente
       } else if (metodoPago === "mercadopago") {
-        // --- OPCIÓN 2: MERCADOPAGO ---
-        alert("Integrando la API de MercadoPago a continuación...");
-        // Aquí conectaremos la API Route de MercadoPago próximamente
+        // --- OPCIÓN 2: MERCADOPAGO (CORREGIDO E INTEGRADO AQUÍ) ---
+        const pedidoId = await RegistrarPedidoEnFirebase("pendiente_pago_mp");
+
+        // Llamamos a nuestra API interna en el servidor
+        const response = await fetch("/api/checkout/mercadopago", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: cartItems.map(item => ({
+              id: item.id,
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              size: item.selectedSize
+            })), 
+            orderId: pedidoId
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.url) {
+          clearCart(); // Limpiamos el carrito local
+          window.location.href = data.url; // 🚀 Redirigimos al cliente a MercadoPago
+        } else {
+          throw new Error(data.error || "No se pudo generar el link de pago");
+        }
       } else if (metodoPago === "venti") {
         // --- OPCIÓN 3: VENTI ---
         alert("Integrando la API de Venti a continuación...");
@@ -67,7 +91,7 @@ export default function CheckoutPage() {
       }
     } catch (error) {
       console.error("Error al procesar el pago:", error);
-      alert("Hubo un problema procesando tu orden.");
+      alert(error.message || "Hubo un problema procesando tu orden.");
     } finally {
       setProcesando(false);
     }
@@ -80,7 +104,7 @@ export default function CheckoutPage() {
         <div className="max-w-xl w-full border border-gray-900 bg-zinc-950 p-8 md:p-12 text-center rounded-none">
           <h2 className="text-3xl font-black uppercase tracking-tighter mb-4 text-white">¡Orden Recibida!</h2>
           <p className="text-xs text-gray-400 tracking-widest uppercase mb-8">Pedido ID: #{pedidoCompletado.id}</p>
-          
+
           <div className="border-t border-b border-gray-900 py-6 text-left space-y-4 mb-8">
             <p className="text-sm font-bold uppercase tracking-wider text-gray-300">Para completar tu compra, transfiere el total a la siguiente cuenta:</p>
             <div className="bg-black p-4 space-y-2 text-xs font-mono text-gray-400 border border-gray-900">
@@ -105,9 +129,9 @@ export default function CheckoutPage() {
     <div className="bg-black min-h-screen text-white pt-32 pb-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-4xl md:text-6xl font-black uppercase tracking-tighter mb-12 border-b border-gray-900 pb-6">Checkout</h1>
-        
+
         <form onSubmit={handlePagar} className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          
+
           {/* COLUMNA IZQUIERDA: DATOS Y PASARELAS */}
           <div className="lg:col-span-7 space-y-8">
             <div className="space-y-4">
@@ -125,7 +149,7 @@ export default function CheckoutPage() {
             <div className="space-y-4">
               <h2 className="text-lg font-bold uppercase tracking-wider text-gray-300">Método de Pago</h2>
               <div className="grid grid-cols-1 gap-3">
-                
+
                 {/* Botón Opción Transferencia */}
                 <label className={`flex items-center justify-between p-4 border cursor-pointer transition-all ${metodoPago === "transferencia" ? "border-white bg-zinc-900" : "border-gray-900 bg-zinc-950 hover:border-gray-700"}`}>
                   <div className="flex items-center space-x-3">
@@ -161,7 +185,7 @@ export default function CheckoutPage() {
           {/* COLUMNA DERECHA: RESUMEN DE COMPRA */}
           <div className="lg:col-span-5 bg-zinc-950 border border-gray-900 p-6 h-fit space-y-6">
             <h2 className="text-lg font-bold uppercase tracking-wider border-b border-gray-900 pb-4">Tu Carrito</h2>
-            
+
             {cartItems.length === 0 ? (
               <p className="text-sm text-gray-500 uppercase tracking-widest py-4 text-center">No hay productos seleccionados.</p>
             ) : (
