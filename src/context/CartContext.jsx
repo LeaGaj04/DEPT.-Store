@@ -35,9 +35,8 @@ export function CartProvider({ children }) {
     });
   };
 
-  // --- NUEVA FUNCIÓN: ACTUALIZAR CANTIDAD ---
   const updateQuantity = (productId, selectedSize, newQuantity) => {
-    if (newQuantity < 1) return; // No permitir cantidades menores a 1
+    if (newQuantity < 1) return;
     setCartItems((prevItems) =>
       prevItems.map((item) =>
         item.id === productId && item.selectedSize === selectedSize
@@ -63,15 +62,21 @@ export function CartProvider({ children }) {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   };
 
+  // --- 🔥 NUEVA FUNCIÓN: CALCULAR EL TOTAL EN PESOS ($) ---
+  const getCartTotal = () => {
+    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  };
+
   return (
     <CartContext.Provider
       value={{
         cartItems,
         addToCart,
         removeFromCart,
-        updateQuantity, // <--- La exportamos aquí
+        updateQuantity,
         clearCart,
         getTotalItems,
+        getCartTotal, // <--- Exportada para usarla en la pantalla de pago
       }}
     >
       {children}
