@@ -5,20 +5,13 @@ import Link from "next/link";
 
 export default function CheckoutPage() {
   const { cartItems, getCartTotal, clearCart } = useCart();
-  const [metodoPago, setMetodoPago] = useState("mercadopago");
+  // Puedes dejar Venti o Webpay como default
+  const [metodoPago, setMetodoPago] = useState("venti"); 
   const [cargando, setCargando] = useState(false);
 
-  // Estados del formulario
   const [formData, setFormData] = useState({
-    nombre: "",
-    apellido: "",
-    email: "",
-    telefono: "",
-    rut: "",
-    region: "",
-    comuna: "",
-    calle: "",
-    numero: "",
+    nombre: "", apellido: "", email: "", telefono: "",
+    rut: "", region: "", comuna: "", calle: "", numero: "",
   });
 
   const handleInputChange = (e) => {
@@ -32,31 +25,35 @@ export default function CheckoutPage() {
     setCargando(true);
 
     try {
-      if (metodoPago === "mercadopago") {
-        // Enviamos los datos del carro y del usuario a nuestra API interna
-        const response = await fetch("/api/checkout/mercadopago", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            items: cartItems,
-            payer: formData,
-          }),
-        });
+      // 🚀 DETERMINAMOS A QUÉ API LLAMAR SEGÚN EL MÉTODO SELECCIONADO
+      let endpoint = "";
+      if (metodoPago === "venti") endpoint = "/api/checkout/venti";
+      else if (metodoPago === "mercadopago") endpoint = "/api/checkout/mercadopago";
+      else if (metodoPago === "webpay") endpoint = "/api/checkout/webpay";
 
-        const data = await response.json();
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: cartItems,
+          payer: formData,
+        }),
+      });
 
-        if (response.ok && data.url) {
-          // Guardamos info del cliente temporal si se necesita antes de salir
-          localStorage.setItem("latest_order_payer", JSON.stringify(formData));
-          
-          // 🔥 Redirección mágica a la pasarela de MercadoPago
-          window.location.href = data.url;
+      const data = await response.json();
+
+      if (response.ok && data.url) {
+        localStorage.setItem("latest_order_payer", JSON.stringify(formData));
+        
+        // 🔥 Si la API devuelve un token (como Webpay), lo mandamos en la URL. 
+        // Si no (como Venti o MP), mandamos solo a la URL.
+        if (data.token) {
+          window.location.href = `${data.url}?token_ws=${data.token}`;
         } else {
-          throw new Error(data.error || "No se pudo generar el link de pago");
+          window.location.href = data.url;
         }
-      } else if (metodoPago === "venti") {
-        alert("Integración con Venti próximamente.");
-        setCargando(false);
+      } else {
+        throw new Error(data.error || `No se pudo generar el link de pago con ${metodoPago}`);
       }
     } catch (error) {
       console.error("Error en el proceso de pago:", error);
@@ -73,7 +70,7 @@ export default function CheckoutPage() {
         </h1>
 
         <form onSubmit={handlePagar} className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* COLUMNA IZQUIERDA: FORMULARIO DE ENVÍO */}
+          {/* FORMULARIO DE ENVÍO */}
           <div className="lg:col-span-7 space-y-8 text-left">
             <div>
               <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-6 border-b border-zinc-900 pb-2">
@@ -105,30 +102,44 @@ export default function CheckoutPage() {
                 3. Método de Pago
               </h2>
               <div className="space-y-3">
+                {/* OPCIÓN VENTI */}
+                <label className={`flex items-center justify-between p-4 border cursor-pointer transition-colors ${metodoPago === 'venti' ? 'border-white bg-zinc-950' : 'border-zinc-900 bg-transparent'}`}>
+                  <div className="flex items-center gap-3">
+                    <input type="radio" name="payment" checked={metodoPago === "venti"} onChange={() => setMetodoPago("venti")} className="accent-white" />
+                    <span className="text-sm font-bold uppercase tracking-wider">Venti (Recomendado)</span>
+                  </div>
+                  <span className="text-xs text-gray-400">Tarjetas y Transferencias</span>
+                </label>
+
+                {/* OPCIÓN MERCADOPAGO */}
                 <label className={`flex items-center justify-between p-4 border cursor-pointer transition-colors ${metodoPago === 'mercadopago' ? 'border-white bg-zinc-950' : 'border-zinc-900 bg-transparent'}`}>
                   <div className="flex items-center gap-3">
                     <input type="radio" name="payment" checked={metodoPago === "mercadopago"} onChange={() => setMetodoPago("mercadopago")} className="accent-white" />
                     <span className="text-sm font-bold uppercase tracking-wider">MercadoPago</span>
                   </div>
-                  <span className="text-xs text-gray-400">Tarjetas de Crédito / Débito / Redcompra</span>
+                  <span className="text-xs text-gray-400">Tarjetas de Crédito / Débito</span>
+                </label>
+
+                {/* OPCIÓN WEBPAY / TRANSBANK */}
+                <label className={`flex items-center justify-between p-4 border cursor-pointer transition-colors ${metodoPago === 'webpay' ? 'border-white bg-zinc-950' : 'border-zinc-900 bg-transparent'}`}>
+                  <div className="flex items-center gap-3">
+                    <input type="radio" name="payment" checked={metodoPago === "webpay"} onChange={() => setMetodoPago("webpay")} className="accent-white" />
+                    <span className="text-sm font-bold uppercase tracking-wider">Webpay Plus</span>
+                  </div>
+                  <span className="text-xs text-gray-400">Tarjetas y Redcompra</span>
                 </label>
               </div>
             </div>
           </div>
 
-          {/* COLUMNA DERECHA: RESUMEN DE COMPRA */}
+          {/* RESUMEN DE COMPRA */}
           <div className="lg:col-span-5">
             <div className="border border-zinc-900 bg-zinc-950 p-6 sticky top-28 text-left">
-              <h2 className="text-sm font-bold uppercase tracking-widest border-b border-zinc-900 pb-4 mb-6">
-                Tu Carrito
-              </h2>
-
+              <h2 className="text-sm font-bold uppercase tracking-widest border-b border-zinc-900 pb-4 mb-6">Tu Carrito</h2>
               {cartItems.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-sm text-gray-500 uppercase tracking-widest mb-4">No tienes prendas seleccionadas.</p>
-                  <Link href="/catalogo" className="inline-block border border-zinc-850 text-white text-[11px] font-bold uppercase tracking-widest px-4 py-2 hover:bg-white hover:text-black transition-colors">
-                    Ir al catálogo
-                  </Link>
+                  <p className="text-sm text-gray-500 uppercase tracking-widest mb-4">No tienes prendas.</p>
+                  <Link href="/catalogo" className="inline-block border border-zinc-850 text-white text-[11px] font-bold uppercase tracking-widest px-4 py-2 hover:bg-white hover:text-black transition-colors">Ir al catálogo</Link>
                 </div>
               ) : (
                 <>
@@ -143,28 +154,11 @@ export default function CheckoutPage() {
                       </div>
                     ))}
                   </div>
-
-                  <div className="space-y-3 border-b border-zinc-900 pb-4 mb-6">
-                    <div className="flex justify-between text-sm text-gray-400">
-                      <span>Subtotal</span>
-                      <span>${getCartTotal().toLocaleString("es-CL")}</span>
-                    </div>
-                    <div className="flex justify-between text-sm text-gray-400">
-                      <span>Despacho</span>
-                      <span className="text-xs uppercase tracking-wider text-green-500 font-bold">Calculado en checkout</span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-baseline mb-8">
+                  <div className="flex justify-between items-baseline mb-8 border-t border-zinc-900 pt-6">
                     <span className="text-sm font-bold uppercase tracking-widest text-white">Total</span>
                     <span className="text-2xl font-black text-white">${getCartTotal().toLocaleString("es-CL")}</span>
                   </div>
-
-                  <button
-                    type="submit"
-                    disabled={cargando}
-                    className="w-full bg-white text-black text-xs font-black uppercase tracking-widest py-4 hover:bg-gray-200 transition-colors disabled:opacity-50"
-                  >
+                  <button type="submit" disabled={cargando} className="w-full bg-white text-black text-xs font-black uppercase tracking-widest py-4 hover:bg-gray-200 transition-colors disabled:opacity-50">
                     {cargando ? "Procesando..." : "Confirmar y Pagar"}
                   </button>
                 </>

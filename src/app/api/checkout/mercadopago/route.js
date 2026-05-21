@@ -3,7 +3,7 @@ import { MercadoPagoConfig, Preference } from "mercadopago";
 
 // 1. Inicializamos MercadoPago con tu Token de Prueba (Asegúrate de tenerlo en tu .env.local)
 const client = new MercadoPagoConfig({
-  accessToken: process.env.MERCADOPAGO_ACCESS_TOKEN || "",
+  accessToken: process.env.MP_ACCESS_TOKEN || "",
 });
 
 export async function POST(request) {
