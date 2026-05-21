@@ -5,14 +5,11 @@ import Link from "next/link";
 import { doc, getDoc, collection, getDocs, query, limit } from "firebase/firestore";
 import { db } from "../../../lib/firebase"; 
 import ProductCard from "../../../components/ProductCard";
-// 1. IMPORTAMOS EL CARRITO
 import { useCart } from "../../../context/CartContext";
 
 export default function ProductPage() {
   const params = useParams();
   const { id } = params;
-
-  // 2. EXTRAEMOS LA FUNCIÓN ADDTOCART
   const { addToCart } = useCart();
 
   const [product, setProduct] = useState(null);
@@ -25,15 +22,25 @@ export default function ProductPage() {
     if (!id) return;
     const fetchProductData = async () => {
       try {
-        const docRef = doc(db, "products", id);
+        // 🔥 Corregido: Ahora apunta a "productos"
+        const docRef = doc(db, "productos", id);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
           const data = docSnap.data();
-          setProduct({ id: docSnap.id, ...data });
-          setMainImage(data.imageUrl);
+          const prodData = { id: docSnap.id, ...data };
+          setProduct(prodData);
+          
+          // 🔥 Corregido: Usa el campo "image" en vez de "imageUrl"
+          setMainImage(data.image || "");
 
-          const q = query(collection(db, "products"), limit(5));
+          // Auto-seleccionar talla si es única (ej: "U")
+          if (data.sizes && data.sizes.length === 1) {
+            setSelectedSize(data.sizes[0]);
+          }
+
+          // 🔥 Corregido: Cargar relacionados desde "productos"
+          const q = query(collection(db, "productos"), limit(5));
           const querySnapshot = await getDocs(q);
           const related = [];
           querySnapshot.forEach((doc) => {
@@ -52,7 +59,6 @@ export default function ProductPage() {
     fetchProductData();
   }, [id]);
 
-  // 3. FUNCIÓN PARA MANEJAR EL CLIC EN AGREGAR
   const handleAddToCart = () => {
     if (!selectedSize) {
       alert("Por favor, selecciona una talla antes de agregar al carrito.");
@@ -72,16 +78,24 @@ export default function ProductPage() {
         <div className="flex flex-col md:flex-row gap-10 lg:gap-16 mb-24">
           {/* GALERÍA */}
           <div className="w-full md:w-1/2 flex flex-col gap-4">
-            <div className="w-full aspect-[4/5] bg-gray-900 overflow-hidden">
-              <img src={mainImage} alt={product.name} className="w-full h-full object-cover object-center" />
+            <div className="w-full aspect-[4/5] bg-zinc-950 border border-zinc-900 overflow-hidden">
+              {mainImage ? (
+                <img src={mainImage} alt={product.name} className="w-full h-full object-cover object-center" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-zinc-800 font-black tracking-widest text-sm uppercase">DEPT STUDIO</div>
+              )}
             </div>
-            <div className="flex gap-4 overflow-x-auto pb-2 custom-scrollbar">
-              {[product.imageUrl, product.imageUrl, product.imageUrl].map((img, idx) => (
-                <button key={idx} onClick={() => setMainImage(img)} className={`w-20 h-24 flex-shrink-0 bg-gray-900 border ${mainImage === img ? 'border-white' : 'border-transparent'}`}>
-                  <img src={img} alt={`Vista ${idx + 1}`} className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity" />
-                </button>
-              ))}
-            </div>
+            
+            {/* Miniaturas de imágenes (solo se muestran si hay una imagen válida) */}
+            {product.image && (
+              <div className="flex gap-4 overflow-x-auto pb-2 custom-scrollbar">
+                {[product.image].map((img, idx) => (
+                  <button key={idx} onClick={() => setMainImage(img)} className={`w-20 h-24 flex-shrink-0 bg-zinc-950 border ${mainImage === img ? 'border-white' : 'border-zinc-900'}`}>
+                    <img src={img} alt={`Vista ${idx + 1}`} className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* DETALLES */}
@@ -90,13 +104,21 @@ export default function ProductPage() {
             <p className="text-xl font-medium text-white mb-4">${product.price?.toLocaleString('es-CL')}</p>
             <p className="text-sm text-gray-400 mb-8 font-medium">Los gastos de envío se calculan en la pantalla de pagos.</p>
 
-            {/* SELECTOR DE TALLA */}
+            {/* SELECTOR DE TALLA DINÁMICO */}
             <div className="mb-8">
               <label htmlFor="size" className="block text-xs font-bold text-gray-400 mb-3 uppercase tracking-widest">Talla</label>
               <div className="relative">
-                <select id="size" value={selectedSize} onChange={(e) => setSelectedSize(e.target.value)} className="w-full bg-black border border-gray-700 text-white py-4 px-4 focus:outline-none focus:border-white transition-colors appearance-none cursor-pointer">
+                <select 
+                  id="size" 
+                  value={selectedSize} 
+                  onChange={(e) => setSelectedSize(e.target.value)} 
+                  className="w-full bg-black border border-zinc-800 text-white py-4 px-4 focus:outline-none focus:border-white transition-colors appearance-none cursor-pointer text-sm uppercase font-bold tracking-widest"
+                >
                   <option value="" disabled>Selecciona una talla</option>
-                  <option value="S">S</option><option value="M">M</option><option value="L">L</option><option value="XL">XL</option>
+                  {/* 🔥 Corregido: Mapea las tallas reales desde el array de tu Firebase */}
+                  {product.sizes && product.sizes.map((size) => (
+                    <option key={size} value={size}>Talla {size}</option>
+                  ))}
                 </select>
                 <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-white">
                   <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
@@ -105,20 +127,32 @@ export default function ProductPage() {
             </div>
 
             <div className="flex flex-col gap-3 mb-12">
-              {/* 4. CONECTAMOS EL BOTÓN AL EVENTO */}
-              <button onClick={handleAddToCart} className="w-full border border-white bg-black text-white py-4 text-sm font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-colors">
+              <button onClick={handleAddToCart} className="w-full border border-white bg-black text-white py-4 text-sm font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300">
                 Agregar al carrito
               </button>
-              <Link href="/carrito" className="w-full text-center bg-white text-black py-4 text-sm font-bold uppercase tracking-widest hover:bg-gray-200 transition-colors">
-                Ver carrito
+              <Link href="/checkout" className="w-full text-center bg-white text-black py-4 text-sm font-bold uppercase tracking-widest hover:bg-zinc-200 transition-all duration-300">
+                Ir al Checkout
               </Link>
             </div>
 
-            <div className="text-gray-400 text-sm space-y-4 leading-relaxed font-medium">
-              {product.description ? <p className="whitespace-pre-line">{product.description}</p> : <p>Prenda diseñada con materiales de primera calidad...</p>}
+            <div className="text-gray-400 text-sm space-y-4 leading-relaxed font-medium border-t border-zinc-900 pt-6">
+              {product.description ? <p className="whitespace-pre-line">{product.description}</p> : <p>Prenda diseñada bajo los más altos estándares de calidad urbana de DEPT STUDIO.</p>}
             </div>
           </div>
         </div>
+
+        {/* SECCIÓN DE PRODUCTOS RELACIONADOS */}
+        {relatedProducts.length > 0 && (
+          <div className="border-t border-zinc-900 pt-16">
+            <h2 className="text-xl font-black uppercase tracking-widest text-white mb-8 text-left">Te podría interesar</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-6">
+              {relatedProducts.map((relProduct) => (
+                <ProductCard key={relProduct.id} product={relProduct} />
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
