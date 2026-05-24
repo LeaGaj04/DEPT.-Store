@@ -106,7 +106,7 @@ export default function CheckoutPage() {
                 <label className={`flex items-center justify-between p-4 border cursor-pointer transition-colors ${metodoPago === 'venti' ? 'border-white bg-zinc-950' : 'border-zinc-900 bg-transparent'}`}>
                   <div className="flex items-center gap-3">
                     <input type="radio" name="payment" checked={metodoPago === "venti"} onChange={() => setMetodoPago("venti")} className="accent-white" />
-                    <span className="text-sm font-bold uppercase tracking-wider">Venti (Recomendado)</span>
+                    <span className="text-sm font-bold uppercase tracking-wider">Venti</span>
                   </div>
                   <span className="text-xs text-gray-400">Tarjetas y Transferencias</span>
                 </label>
@@ -115,7 +115,7 @@ export default function CheckoutPage() {
                 <label className={`flex items-center justify-between p-4 border cursor-pointer transition-colors ${metodoPago === 'mercadopago' ? 'border-white bg-zinc-950' : 'border-zinc-900 bg-transparent'}`}>
                   <div className="flex items-center gap-3">
                     <input type="radio" name="payment" checked={metodoPago === "mercadopago"} onChange={() => setMetodoPago("mercadopago")} className="accent-white" />
-                    <span className="text-sm font-bold uppercase tracking-wider">MercadoPago</span>
+                    <span className="text-sm font-bold uppercase tracking-wider">MercadoPago(Sin Servicio)</span>
                   </div>
                   <span className="text-xs text-gray-400">Tarjetas de Crédito / Débito</span>
                 </label>

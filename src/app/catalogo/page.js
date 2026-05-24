@@ -4,6 +4,10 @@ import { useSearchParams } from "next/navigation";
 import { db } from "../../lib/firebase"; // Ajusta la ruta según tu estructura
 import { collection, getDocs } from "firebase/firestore";
 
+// 1. IMPORTAMOS EL CARRITO Y EL ÍCONO
+import { useCart } from "../../context/CartContext"; 
+import { ShoppingBag } from "lucide-react";
+
 // Componente interno que maneja la lógica del catálogo
 function CatalogoContent() {
   const searchParams = useSearchParams();
@@ -13,6 +17,9 @@ function CatalogoContent() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // 2. EXTRAEMOS LA FUNCIÓN DEL CARRITO
+  const { addToCart } = useCart();
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -21,7 +28,6 @@ function CatalogoContent() {
         const allProducts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
         // MAPEO CLAVE: Vinculamos lo que viene de tu Navbar con las categorías de Firebase
-        // Si en tu Navbar el href dice '?categoria=beanie', aquí lo transformamos a 'Beanies' (como lo guarda el admin)
         let categoriaFormateada = "";
         if (categoriaUrl) {
           const urlLower = categoriaUrl.toLowerCase();
@@ -52,7 +58,7 @@ function CatalogoContent() {
     };
 
     fetchProducts();
-  }, [categoriaUrl]); // Cada vez que el cliente cambie de categoría en el menú, este useEffect se vuelve a ejecutar
+  }, [categoriaUrl]); 
 
   // Determinar el título dinámico de la página
   const getTitle = () => {
@@ -78,12 +84,13 @@ function CatalogoContent() {
       {/* Grid Minimalista de Productos */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products.map((product) => (
-          <div key={product.id} className="group cursor-pointer">
+          // Le agregué flex y flex-col al contenedor para empujar el botón siempre al fondo
+          <div key={product.id} className="group cursor-pointer flex flex-col h-full">
             <div className="overflow-hidden bg-zinc-900 aspect-square relative mb-4">
               <img 
                 src={product.imageUrl} 
                 alt={product.name} 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${product.status === "Agotado" ? 'opacity-50 grayscale' : ''}`}
               />
               {product.status === "Agotado" && (
                 <span className="absolute top-2 left-2 bg-red-600 text-white text-[9px] font-black uppercase px-2 py-0.5 tracking-wider">SOLD OUT</span>
@@ -92,7 +99,23 @@ function CatalogoContent() {
             <div className="flex justify-between items-start">
               <h3 className="text-xs font-black uppercase tracking-tight text-white">{product.name}</h3>
             </div>
-            <p className="text-xs text-zinc-400 mt-1">${product.price.toLocaleString('es-CL')}</p>
+            <p className="text-xs text-zinc-400 mt-1 mb-4">${product.price.toLocaleString('es-CL')}</p>
+
+            {/* 3. BOTÓN AGREGADO AQUÍ (con mt-auto para alinearse siempre abajo) */}
+            <button 
+              onClick={(e) => {
+                e.preventDefault(); 
+                const defaultSize = product.sizes && product.sizes.length > 0 ? product.sizes[0] : "Única";
+                addToCart(product, defaultSize);
+                alert(`¡${product.name} agregado al carrito! 🛒`);
+              }}
+              disabled={product.status === "Agotado"}
+              className="w-full mt-auto bg-white text-black py-2.5 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-300 transition-colors flex items-center justify-center disabled:bg-zinc-800 disabled:text-zinc-500 disabled:cursor-not-allowed"
+            >
+              <ShoppingBag size={14} className="mr-2" />
+              {product.status === "Agotado" ? "Sin Stock" : "Agregar"}
+            </button>
+            
           </div>
         ))}
       </div>
