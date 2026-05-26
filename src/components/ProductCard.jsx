@@ -2,6 +2,13 @@
 import Link from 'next/link';
 import { useCart } from '../context/CartContext'; // Ajusta la ruta si tu carpeta context está en otro lugar
 
+// 1. MAPEAMOS LAS CATEGORÍAS A TUS FOTOS LOCALES EN LA CARPETA 'public/images/'
+const imagenesPorCategoria = {
+  "Trucker Hats": "/products/trucker.jpg",
+  "Beanies": "/products/beanie.jpg",
+  "Poleras": "/products/polera.jpg",
+};
+
 export default function ProductCard({ product }) {
   const { addToCart } = useCart();
 
@@ -17,19 +24,28 @@ export default function ProductCard({ product }) {
     addToCart(product, defaultSize);
   };
 
+  // 2. ASIGNAMOS LA RUTA LOCAL AUTOMÁTICAMENTE
+
+  const rutaImagenLocal = imagenesPorCategoria[product.category] || "/products/default.jpg";
+  
+  // Agrega esto temporalmente para ver qué pasa:
+  console.log("Categoría de Firebase:", product.category);
+  console.log("Ruta que intenta cargar:", rutaImagenLocal);
+
   return (
     <Link href={`/producto/${product.id}`} className="group block cursor-pointer">
       
       {/* 1. CONTENEDOR DE LA IMAGEN */}
       <div className="relative aspect-[3/4] bg-zinc-950 overflow-hidden mb-4 border border-zinc-900 group-hover:border-zinc-800 transition-colors">
-        {product.image ? (
+        {/* 🔥 Editado: Ahora renderiza la ruta local que calculamos arriba */}
+        {rutaImagenLocal ? (
           <img
-            src={product.image}
+            src={rutaImagenLocal}
             alt={product.name}
             className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-in-out"
           />
         ) : (
-          /* Marcador de posición elegante por si aún no pones el link de la foto en Firebase */
+          /* Marcador de posición elegante */
           <div className="w-full h-full flex items-center justify-center bg-zinc-950 text-zinc-800 font-black tracking-[0.25em] text-xs uppercase select-none">
             DEPT STUDIO
           </div>

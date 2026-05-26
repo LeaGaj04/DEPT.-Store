@@ -6,6 +6,13 @@ import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { useCart } from "../context/CartContext"; // Importamos tu carrito
 
+// 1. MAPEAMOS LAS CATEGORÍAS A TUS FOTOS LOCALES EN LA CARPETA 'public/products/'
+const imagenesPorCategoria = {
+  "Trucker Hats": "/products/trucker.jpg",
+  "Beanies": "/products/beanie.jpg",
+  "Poleras": "/products/polera.jpg",
+};
+
 // ------------------------------------------------------------------
 // COMPONENTE: Tarjeta individual limpia con botón directo
 // ------------------------------------------------------------------
@@ -22,11 +29,15 @@ function ProductCard({ product, isNew }) {
     alert(`¡${product.name} agregado al carrito! 🛒`);
   };
 
+  // 2. ASIGNAMOS LA RUTA LOCAL AUTOMÁTICAMENTE
+  const rutaImagenLocal = imagenesPorCategoria[product.category] || "/products/default.jpg";
+
   return (
     <div className="group flex flex-col h-full bg-zinc-950 p-3 border border-transparent hover:border-zinc-900 transition-colors">
       <div className="overflow-hidden bg-zinc-900 aspect-square relative mb-4">
+        {/* 🔥 Editado: Ahora renderiza la ruta local */}
         <img 
-          src={product.imageUrl} 
+          src={rutaImagenLocal} 
           alt={product.name} 
           className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${isAgotado ? 'opacity-50 grayscale' : ''}`}
         />
@@ -81,7 +92,6 @@ export default function HomePage() {
         setNewArrivals(sortedProducts.slice(0, 4));
 
         // 2. Filtrar sección de Beanies (Filtra por la categoría guardada en tu panel)
-        // Nota: Asegúrate de que coincida con el nombre exactos que usas al crear el producto (ej: "Beanies")
         const filteredBeanies = sortedProducts.filter(p => p.category === "Beanies" || p.category === "beanies");
         setBeanies(filteredBeanies);
 
@@ -112,7 +122,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/50 to-black z-10" />
         <div className="relative z-20 flex flex-col items-center">
           <h1 className="text-5xl md:text-8xl font-black tracking-tighter uppercase text-white">
-            DE<span className="text-red-600">P</span>T.STREETWEAR
+            DE<span className="text-red-600">P</span>T. Store
           </h1>
           <Link 
             href="/catalogo" 
@@ -128,7 +138,7 @@ export default function HomePage() {
         {/* SECCIÓN 2: ÚLTIMO DROP (Lo más nuevo en general) */}
         <div>
           <div className="mb-8 border-b border-zinc-900 pb-4 flex justify-between items-end">
-            <h2 className="text-xl font-black uppercase tracking-tight">Último Drop / Lo Nuevo</h2>
+            <h2 className="text-xl font-black uppercase tracking-tight">Lo Nuevo</h2>
             <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-widest">Recién Llegado</span>
           </div>
 

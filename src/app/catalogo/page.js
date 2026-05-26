@@ -8,6 +8,13 @@ import { collection, getDocs } from "firebase/firestore";
 import { useCart } from "../../context/CartContext"; 
 import { ShoppingBag } from "lucide-react";
 
+// 2. MAPEAMOS LAS CATEGORÍAS A TUS FOTOS LOCALES
+const imagenesPorCategoria = {
+  "Trucker Hats": "/products/trucker.jpg",
+  "Beanies": "/products/beanie.jpg",
+  "Poleras": "/products/polera.jpg",
+};
+
 // Componente interno que maneja la lógica del catálogo
 function CatalogoContent() {
   const searchParams = useSearchParams();
@@ -17,7 +24,7 @@ function CatalogoContent() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 2. EXTRAEMOS LA FUNCIÓN DEL CARRITO
+  // EXTRAEMOS LA FUNCIÓN DEL CARRITO
   const { addToCart } = useCart();
 
   useEffect(() => {
@@ -83,41 +90,48 @@ function CatalogoContent() {
       
       {/* Grid Minimalista de Productos */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {products.map((product) => (
-          // Le agregué flex y flex-col al contenedor para empujar el botón siempre al fondo
-          <div key={product.id} className="group cursor-pointer flex flex-col h-full">
-            <div className="overflow-hidden bg-zinc-900 aspect-square relative mb-4">
-              <img 
-                src={product.imageUrl} 
-                alt={product.name} 
-                className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${product.status === "Agotado" ? 'opacity-50 grayscale' : ''}`}
-              />
-              {product.status === "Agotado" && (
-                <span className="absolute top-2 left-2 bg-red-600 text-white text-[9px] font-black uppercase px-2 py-0.5 tracking-wider">SOLD OUT</span>
-              )}
-            </div>
-            <div className="flex justify-between items-start">
-              <h3 className="text-xs font-black uppercase tracking-tight text-white">{product.name}</h3>
-            </div>
-            <p className="text-xs text-zinc-400 mt-1 mb-4">${product.price.toLocaleString('es-CL')}</p>
+        {products.map((product) => {
+          // 3. CALCULAMOS LA RUTA Y EL STOCK AQUÍ ADENTRO DEL MAP
+          const rutaImagenLocal = imagenesPorCategoria[product.category] || "/products/default.jpg";
+          const isAgotado = product.status === "Agotado";
 
-            {/* 3. BOTÓN AGREGADO AQUÍ (con mt-auto para alinearse siempre abajo) */}
-            <button 
-              onClick={(e) => {
-                e.preventDefault(); 
-                const defaultSize = product.sizes && product.sizes.length > 0 ? product.sizes[0] : "Única";
-                addToCart(product, defaultSize);
-                alert(`¡${product.name} agregado al carrito! 🛒`);
-              }}
-              disabled={product.status === "Agotado"}
-              className="w-full mt-auto bg-white text-black py-2.5 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-300 transition-colors flex items-center justify-center disabled:bg-zinc-800 disabled:text-zinc-500 disabled:cursor-not-allowed"
-            >
-              <ShoppingBag size={14} className="mr-2" />
-              {product.status === "Agotado" ? "Sin Stock" : "Agregar"}
-            </button>
-            
-          </div>
-        ))}
+          return (
+            // 🔥 DISEÑO ACTUALIZADO IDÉNTICO AL HOME 🔥
+            <div key={product.id} className="group flex flex-col h-full bg-zinc-950 p-3 border border-transparent hover:border-zinc-900 transition-colors">
+              
+              <div className="overflow-hidden bg-zinc-900 aspect-square relative mb-4">
+                <img 
+                  src={rutaImagenLocal} 
+                  alt={product.name} 
+                  className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${isAgotado ? 'opacity-50 grayscale' : ''}`}
+                />
+                {isAgotado && (
+                  <span className="absolute top-2 left-2 bg-red-600 text-white text-[9px] font-black uppercase px-2 py-0.5 tracking-wider">SOLD OUT</span>
+                )}
+              </div>
+              
+              <h3 className="text-xs font-black uppercase tracking-tight text-white truncate">{product.name}</h3>
+              <p className="text-xs text-zinc-400 mt-1 mb-4">${product.price ? product.price.toLocaleString('es-CL') : '0'}</p>
+
+              <div className="mt-auto">
+                <button 
+                  onClick={(e) => {
+                    e.preventDefault(); 
+                    const defaultSize = product.sizes && product.sizes.length > 0 ? product.sizes[0] : "Única";
+                    addToCart(product, defaultSize);
+                    alert(`¡${product.name} agregado al carrito! 🛒`);
+                  }}
+                  disabled={isAgotado}
+                  className="w-full bg-white text-black py-2.5 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-300 transition-colors flex items-center justify-center disabled:bg-zinc-800 disabled:text-zinc-500 disabled:cursor-not-allowed"
+                >
+                  <ShoppingBag size={14} className="mr-2" />
+                  {isAgotado ? "Sin Stock" : "Agregar"}
+                </button>
+              </div>
+              
+            </div>
+          );
+        })}
       </div>
 
       {products.length === 0 && (
@@ -138,5 +152,3 @@ export default function CatalogoPage() {
     </Suspense>
   );
 }
-
-// Comentario para git push

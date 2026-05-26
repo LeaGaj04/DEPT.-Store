@@ -4,11 +4,18 @@ import { Trash2, Plus, Minus } from "lucide-react";
 // 1. Importamos tu contexto
 import { useCart } from "../../context/CartContext";
 
+// 2. MAPEAMOS LAS CATEGORÍAS A TUS FOTOS LOCALES
+const imagenesPorCategoria = {
+  "Trucker Hats": "/products/trucker.jpg",
+  "Beanies": "/products/beanie.jpg",
+  "Poleras": "/products/polera.jpg",
+};
+
 export default function CartPage() {
-  // 2. Traemos las funciones del cerebro
+  // Traemos las funciones del cerebro
   const { cartItems, removeFromCart, updateQuantity } = useCart();
 
-  // 3. Matemáticas automáticas
+  // Matemáticas automáticas
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const shipping = subtotal >= 60000 ? 0 : 5000; // Envío gratis sobre $60.000
   const total = subtotal + shipping;
@@ -28,52 +35,62 @@ export default function CartPage() {
               <p className="text-gray-500 font-medium">Tu carrito está vacío.</p>
             ) : (
               <div className="space-y-6">
-                {cartItems.map((item, index) => (
-                  <div key={index} className="flex border-b border-gray-200 pb-6">
-                    <div className="h-32 w-24 flex-shrink-0 overflow-hidden bg-gray-100">
-                      <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover object-center" />
-                    </div>
+                {cartItems.map((item, index) => {
+                  // 3. CALCULAMOS LA RUTA LOCAL AQUÍ ADENTRO DEL MAP
+                  const rutaImagenLocal = imagenesPorCategoria[item.category] || "/products/default.jpg";
 
-                    <div className="ml-6 flex flex-1 flex-col justify-between">
-                      <div>
-                        <div className="flex justify-between text-sm font-bold uppercase tracking-wide text-black">
-                          <h3>{item.name}</h3>
-                          <p className="ml-4">${(item.price * item.quantity).toLocaleString('es-CL')}</p>
-                        </div>
-                        <p className="mt-1 text-sm text-gray-500">Talla: {item.selectedSize}</p>
+                  return (
+                    <div key={index} className="flex border-b border-gray-200 pb-6">
+                      <div className="h-32 w-24 flex-shrink-0 overflow-hidden bg-gray-100 relative">
+                        {/* 🔥 Editado: Ahora usa la ruta local */}
+                        <img 
+                          src={rutaImagenLocal} 
+                          alt={item.name} 
+                          className="h-full w-full object-cover object-center" 
+                        />
                       </div>
-                      
-                      <div className="flex flex-1 items-end justify-between text-sm">
-                        {/* CONTROLES DE CANTIDAD (+ / -) */}
-                        <div className="flex items-center border border-gray-300">
+
+                      <div className="ml-6 flex flex-1 flex-col justify-between">
+                        <div>
+                          <div className="flex justify-between text-sm font-bold uppercase tracking-wide text-black">
+                            <h3>{item.name}</h3>
+                            <p className="ml-4">${(item.price * item.quantity).toLocaleString('es-CL')}</p>
+                          </div>
+                          <p className="mt-1 text-sm text-gray-500">Talla: {item.selectedSize}</p>
+                        </div>
+                        
+                        <div className="flex flex-1 items-end justify-between text-sm">
+                          {/* CONTROLES DE CANTIDAD (+ / -) */}
+                          <div className="flex items-center border border-gray-300">
+                            <button 
+                              onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity - 1)}
+                              className="text-gray-500 hover:text-black p-2 transition-colors"
+                            >
+                              <Minus size={14} />
+                            </button>
+                            <span className="text-black px-4 font-bold">
+                              {item.quantity}
+                            </span>
+                            <button 
+                              onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity + 1)}
+                              className="text-gray-500 hover:text-black p-2 transition-colors"
+                            >
+                              <Plus size={14} />
+                            </button>
+                          </div>
+
+                          {/* BOTÓN ELIMINAR */}
                           <button 
-                            onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity - 1)}
-                            className="text-gray-500 hover:text-black p-2 transition-colors"
+                            onClick={() => removeFromCart(item.id, item.selectedSize)} 
+                            className="font-medium text-gray-400 hover:text-red-600 transition-colors"
                           >
-                            <Minus size={14} />
-                          </button>
-                          <span className="text-black px-4 font-bold">
-                            {item.quantity}
-                          </span>
-                          <button 
-                            onClick={() => updateQuantity(item.id, item.selectedSize, item.quantity + 1)}
-                            className="text-gray-500 hover:text-black p-2 transition-colors"
-                          >
-                            <Plus size={14} />
+                            <Trash2 size={18} />
                           </button>
                         </div>
-
-                        {/* BOTÓN ELIMINAR */}
-                        <button 
-                          onClick={() => removeFromCart(item.id, item.selectedSize)} 
-                          className="font-medium text-gray-400 hover:text-red-600 transition-colors"
-                        >
-                          <Trash2 size={18} />
-                        </button>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -100,7 +117,7 @@ export default function CartPage() {
               </div>
 
               {cartItems.length > 0 ? (
-                // 4. AQUÍ CONECTAMOS CON LA PARTE B (CHECKOUT)
+                // AQUÍ CONECTAMOS CON LA PARTE B (CHECKOUT)
                 <Link href="/checkout" className="w-full flex items-center justify-center py-4 text-sm font-bold uppercase tracking-widest bg-black text-white hover:bg-gray-800 transition-colors">
                   Ir al Pago
                 </Link>
