@@ -24,3 +24,20 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* ANIMACIÓN PARA EL CARRUSEL DEL FOOTER */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+  display: flex;
+  width: max-content;
+}
+
+/* Para que se pause cuando pasas el mouse por encima */
+.group:hover .animate-marquee {
+  animation-play-state: paused !important;
+}

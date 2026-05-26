@@ -2,6 +2,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import TopBar from "../components/TopBar";
 import Header from "../components/Header";
+import Footer from "../components/Footer"; // Ya lo tenías importado, ¡excelente!
 // 1. Importamos el proveedor del carrito
 import { CartProvider } from "../context/CartContext";
 
@@ -24,10 +25,10 @@ export default function RootLayout({ children }) {
           <main className="min-h-screen">
             {children}
           </main>
-          {/* Footer original intacto */}
-          <footer className="bg-black text-white py-12 mt-20 text-center text-sm uppercase tracking-widest">
-            <p>© 2026 DEPT. Todos los derechos reservados.</p>
-          </footer>
+          
+          {/* 3. AQUÍ REEMPLAZAMOS EL FOOTER VIEJO POR EL NUEVO COMPONENTE */}
+          <Footer />
+          
         </CartProvider>
       </body>
     </html>
