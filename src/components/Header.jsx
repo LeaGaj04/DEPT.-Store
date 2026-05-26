@@ -33,6 +33,7 @@ export default function Header() {
                         <Link href="/catalogo" className="text-sm font-medium text-black hover:text-gray-500 uppercase tracking-wide transition-colors">Drop</Link>
                         <Link href="/catalogo?categoria=beanie" className="text-sm font-medium text-black hover:text-gray-500 uppercase tracking-wide transition-colors">Beanies</Link>
                         <Link href="/catalogo?categoria=trucker" className="text-sm font-medium text-black hover:text-gray-500 uppercase tracking-wide transition-colors">Trucker Hats</Link>
+                        <Link href="/catalogo?categoria=polera" className="text-sm font-medium text-black hover:text-gray-500 uppercase tracking-wide transition-colors">Poleras</Link>
                     </nav>
 
                     {/* Iconos (Buscar, Cuenta, Carrito) */}
