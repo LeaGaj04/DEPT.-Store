@@ -40,11 +40,16 @@ export async function GET(request) {
     const commitResponse = await tx.commit(token);
 
     // 6. Evaluamos la respuesta de Transbank
+   // 6. Evaluamos la respuesta de Transbank
     if (commitResponse.response_code === 0) {
       // ✅ PAGO APROBADO
       console.log("¡Pago exitoso con Webpay!", commitResponse);
-      // Redirigimos a tu pantalla de éxito (puedes cambiar esta ruta a la que uses)
-      return NextResponse.redirect(`${baseUrl}/success?metodo=webpay&orden=${commitResponse.buy_order}`);
+      
+      // Rescatamos el número de orden que nos devuelve Transbank
+      const numeroOrden = commitResponse.buy_order;
+      
+      // Redirigimos usando la variable correcta
+      return NextResponse.redirect(new URL(`/checkout/success?metodo=webpay&orden=${numeroOrden}`, request.url));
     } else {
       // ❌ PAGO RECHAZADO (Ej: sin fondos, tarjeta bloqueada)
       console.log("Pago rechazado por el banco", commitResponse);

@@ -2,7 +2,7 @@
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
 import Link from "next/link";
-import { useCart } from "../../context/CartContext"; // Asegúrate de que esta ruta sea correcta
+import { useCart } from "../../../context/CartContext"; // Asegúrate de que esta ruta sea correcta
 
 function SuccessContent() {
   const searchParams = useSearchParams();
