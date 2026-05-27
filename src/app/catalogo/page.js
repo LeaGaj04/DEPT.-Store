@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { db } from "../../lib/firebase"; // Ajusta la ruta según tu estructura
+import Link from "next/link"; // 🔥 1. AGREGAMOS LINK AQUÍ
+import { db } from "../../lib/firebase"; 
 import { collection, getDocs } from "firebase/firestore";
 
 // 1. IMPORTAMOS EL CARRITO Y EL ÍCONO
@@ -18,7 +19,6 @@ const imagenesPorCategoria = {
 // Componente interno que maneja la lógica del catálogo
 function CatalogoContent() {
   const searchParams = useSearchParams();
-  // Capturamos el parámetro "categoria" de la URL (ej: /catalogo?categoria=beanie)
   const categoriaUrl = searchParams.get("categoria");
 
   const [products, setProducts] = useState([]);
@@ -34,7 +34,6 @@ function CatalogoContent() {
         const querySnapshot = await getDocs(collection(db, "products"));
         const allProducts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-        // MAPEO CLAVE: Vinculamos lo que viene de tu Navbar con las categorías de Firebase
         let categoriaFormateada = "";
         if (categoriaUrl) {
           const urlLower = categoriaUrl.toLowerCase();
@@ -44,12 +43,10 @@ function CatalogoContent() {
           else if (urlLower.includes("drop")) categoriaFormateada = "Drop";
         }
 
-        // Si hay una categoría seleccionada en la URL, filtramos. Si no, mostramos todo.
         if (categoriaFormateada) {
           const filtered = allProducts.filter(p => p.category === categoriaFormateada);
           setProducts(filtered);
         } else {
-          // Si entran a /catalogo a secas, ordenamos por fecha (lo más nuevo primero)
           const sorted = allProducts.sort((a, b) => {
             const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
             const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
@@ -67,7 +64,6 @@ function CatalogoContent() {
     fetchProducts();
   }, [categoriaUrl]); 
 
-  // Determinar el título dinámico de la página
   const getTitle = () => {
     if (!categoriaUrl) return "Todos los Productos";
     if (categoriaUrl.toLowerCase().includes("polera")) return "Poleras";
@@ -91,13 +87,16 @@ function CatalogoContent() {
       {/* Grid Minimalista de Productos */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products.map((product) => {
-          // 3. CALCULAMOS LA RUTA Y EL STOCK AQUÍ ADENTRO DEL MAP
           const rutaImagenLocal = imagenesPorCategoria[product.category] || "/products/default.jpg";
           const isAgotado = product.status === "Agotado";
 
           return (
-            // 🔥 DISEÑO ACTUALIZADO IDÉNTICO AL HOME 🔥
-            <div key={product.id} className="group flex flex-col h-full bg-zinc-950 p-3 border border-transparent hover:border-zinc-900 transition-colors">
+            // 🔥 2. CAMBIAMOS EL DIV POR UN LINK PARA QUE CONECTE CON EL PRODUCTO 🔥
+            <Link 
+              href={`/producto/${product.id}`} 
+              key={product.id} 
+              className="group flex flex-col h-full bg-zinc-950 p-3 border border-transparent hover:border-zinc-900 transition-colors cursor-pointer"
+            >
               
               <div className="overflow-hidden bg-zinc-900 aspect-square relative mb-4">
                 <img 
@@ -117,6 +116,7 @@ function CatalogoContent() {
                 <button 
                   onClick={(e) => {
                     e.preventDefault(); 
+                    e.stopPropagation(); // 🔥 3. ESTO EVITA QUE AL AGREGAR AL CARRITO TE LLEVE A LA OTRA PÁGINA 🔥
                     const defaultSize = product.sizes && product.sizes.length > 0 ? product.sizes[0] : "Única";
                     addToCart(product, defaultSize);
                     alert(`¡${product.name} agregado al carrito! 🛒`);
@@ -129,7 +129,7 @@ function CatalogoContent() {
                 </button>
               </div>
               
-            </div>
+            </Link>
           );
         })}
       </div>
@@ -143,8 +143,6 @@ function CatalogoContent() {
   );
 }
 
-// En Next.js (App Router), cualquier componente que use useSearchParams() 
-// DEBE estar envuelto en un componente <Suspense> para evitar errores durante la build.
 export default function CatalogoPage() {
   return (
     <Suspense fallback={<div className="p-20 text-center uppercase tracking-widest text-xs text-white bg-black min-h-screen">Cargando Catálogo...</div>}>
