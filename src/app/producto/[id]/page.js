@@ -22,6 +22,7 @@ export default function ProductPage() {
     if (!id) return;
     const fetchProductData = async () => {
       try {
+        // ✅ AQUÍ YA ESTÁ CORREGIDO A "products"
         const docRef = doc(db, "products", id);
         const docSnap = await getDoc(docRef);
 
@@ -35,6 +36,7 @@ export default function ProductPage() {
             setSelectedSize(data.sizes[0]);
           }
 
+          // ✅ AQUÍ TAMBIÉN CORREGIDO A "products"
           const q = query(collection(db, "products"), limit(5));
           const querySnapshot = await getDocs(q);
           const related = [];
@@ -63,11 +65,11 @@ export default function ProductPage() {
     alert("¡Prenda agregada al carrito con éxito!");
   };
 
-  if (loading) return <div className="min-h-screen bg-white flex items-center justify-center"><p className="text-black text-xs uppercase tracking-widest font-bold animate-pulse">Cargando prenda...</p></div>;
-  if (!product) return <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-4"><p className="text-black text-xl font-bold uppercase tracking-widest">Producto no encontrado</p></div>;
+  if (loading) return <div className="min-h-screen bg-black flex items-center justify-center"><p className="text-white text-xs uppercase tracking-widest font-bold animate-pulse">Cargando prenda...</p></div>;
+  if (!product) return <div className="min-h-screen bg-black flex flex-col items-center justify-center gap-4"><p className="text-white text-xl font-bold uppercase tracking-widest">Producto no encontrado</p></div>;
 
   return (
-    <div className="min-h-screen bg-white w-full text-black pt-10 pb-24">
+    <div className="min-h-screen bg-black w-full text-white pt-10 pb-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 mb-24">
@@ -81,7 +83,7 @@ export default function ProductPage() {
                   <button 
                     key={idx} 
                     onClick={() => setMainImage(img)}
-                    className={`w-20 h-24 md:w-full md:h-32 flex-shrink-0 bg-gray-100 border-2 transition-all ${mainImage === img ? 'border-black' : 'border-transparent'}`}
+                    className={`w-20 h-24 md:w-full md:h-32 flex-shrink-0 bg-zinc-900 border-2 transition-all ${mainImage === img ? 'border-white' : 'border-transparent'}`}
                   >
                     <img src={img} alt={`Vista ${idx + 1}`} className="w-full h-full object-cover" />
                   </button>
@@ -90,11 +92,11 @@ export default function ProductPage() {
             )}
             
             {/* Imagen Principal Grande */}
-            <div className="flex-1 bg-gray-100 aspect-[4/5] relative border border-gray-200">
+            <div className="flex-1 bg-zinc-950 aspect-[4/5] relative border border-zinc-900 overflow-hidden">
                {mainImage ? (
                 <img src={mainImage} alt={product.name} className="w-full h-full object-cover object-center" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-gray-400 font-black tracking-widest text-sm uppercase">DEPT STUDIO</div>
+                <div className="w-full h-full flex items-center justify-center text-zinc-600 font-black tracking-widest text-sm uppercase">DEPT STUDIO</div>
               )}
             </div>
           </div>
@@ -103,23 +105,25 @@ export default function ProductPage() {
           <div className="flex flex-col md:py-4">
             {/* Título y Precio */}
             <div className="mb-8">
-              <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight mb-2">{product.name}</h1>
-              <p className="text-xl text-gray-800">${product.price?.toLocaleString('es-CL')}</p>
-              <p className="text-sm text-gray-500 mt-2">Los gastos de envío se calculan en el checkout.</p>
+              <h1 className="text-3xl md:text-4xl font-black uppercase tracking-tight mb-2 text-white">{product.name}</h1>
+              <p className="text-xl text-zinc-300">${product.price?.toLocaleString('es-CL')}</p>
+              <p className="text-sm text-zinc-500 mt-2">Los gastos de envío se calculan en el checkout.</p>
             </div>
 
             {/* Selector de Tallas (Estilo Cuadrícula) */}
             <div className="mb-8">
               <div className="flex justify-between items-center mb-3">
-                <span className="font-bold uppercase text-sm tracking-widest">Talla</span>
+                <span className="font-bold uppercase text-sm tracking-widest text-zinc-300">Talla</span>
               </div>
               <div className="flex flex-wrap gap-3">
                 {product.sizes && product.sizes.map((size) => (
                   <button 
                     key={size}
                     onClick={() => setSelectedSize(size)}
-                    className={`w-14 h-14 border border-black flex items-center justify-center font-bold transition-colors uppercase
-                      ${selectedSize === size ? 'bg-black text-white' : 'bg-white text-black hover:bg-gray-100'}`}
+                    className={`w-14 h-14 border flex items-center justify-center font-bold transition-all uppercase
+                      ${selectedSize === size 
+                        ? 'bg-white text-black border-white' 
+                        : 'bg-black text-white border-zinc-700 hover:border-zinc-400'}`}
                   >
                     {size}
                   </button>
@@ -131,28 +135,28 @@ export default function ProductPage() {
             <div className="flex flex-col gap-3 mb-10">
               <button 
                 onClick={handleAddToCart} 
-                className="w-full bg-black text-white border border-black py-5 font-black uppercase tracking-widest hover:bg-gray-800 transition-colors"
+                className="w-full bg-white text-black py-5 font-black uppercase tracking-widest hover:bg-zinc-300 transition-colors"
               >
                 Añadir al carrito
               </button>
               <Link 
                 href="/checkout" 
-                className="w-full text-center bg-white text-black border border-black py-4 text-sm font-bold uppercase tracking-widest hover:bg-gray-100 transition-colors"
+                className="w-full text-center bg-black text-white border border-zinc-700 py-4 text-sm font-bold uppercase tracking-widest hover:bg-zinc-900 transition-colors"
               >
                 Ir al Checkout
               </Link>
             </div>
 
             {/* Descripción y Extras */}
-            <div className="pt-6 border-t border-gray-200">
-              <h3 className="font-bold uppercase text-sm mb-3">Descripción</h3>
-              <div className="text-gray-600 text-sm space-y-4 leading-relaxed">
+            <div className="pt-6 border-t border-zinc-900">
+              <h3 className="font-bold uppercase text-sm mb-3 text-white">Descripción</h3>
+              <div className="text-zinc-400 text-sm space-y-4 leading-relaxed">
                 {product.description ? <p className="whitespace-pre-line">{product.description}</p> : <p>Prenda diseñada bajo los más altos estándares de calidad urbana de DEPT STUDIO.</p>}
               </div>
             </div>
             
-            <div className="flex flex-col gap-2 text-sm text-gray-500 pt-6 mt-6 border-t border-gray-200">
-              <p>📦 Envíos a todo Chile vía Starken/Chilexpress.</p>
+            <div className="flex flex-col gap-2 text-sm text-zinc-500 pt-6 mt-6 border-t border-zinc-900">
+              <p>📦 Envíos a todo Chile vía Starken / Chilexpress.</p>
               <p>🔄 Cambios garantizados por talla.</p>
             </div>
           </div>
@@ -160,8 +164,8 @@ export default function ProductPage() {
 
         {/* SECCIÓN DE PRODUCTOS RELACIONADOS */}
         {relatedProducts.length > 0 && (
-          <div className="border-t border-gray-200 pt-16">
-            <h2 className="text-xl font-black uppercase tracking-widest mb-8 text-left">Te podría interesar</h2>
+          <div className="border-t border-zinc-900 pt-16">
+            <h2 className="text-xl font-black uppercase tracking-widest mb-8 text-left text-white">Te podría interesar</h2>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-6">
               {relatedProducts.map((relProduct) => (
                 <ProductCard key={relProduct.id} product={relProduct} />

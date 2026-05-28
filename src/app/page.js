@@ -14,7 +14,7 @@ const imagenesPorCategoria = {
 };
 
 // ------------------------------------------------------------------
-// COMPONENTE: Tarjeta individual limpia con botón directo
+// COMPONENTE: Tarjeta individual limpia con redirección a /producto/[id]
 // ------------------------------------------------------------------
 function ProductCard({ product, isNew }) {
   const { addToCart } = useCart();
@@ -24,6 +24,8 @@ function ProductCard({ product, isNew }) {
   const isAgotado = product.status === "Agotado";
 
   const handleAddToCart = (e) => {
+    // 🛑 Crucial: Evita que el clic en el botón active el Link de la tarjeta
+    e.stopPropagation();
     e.preventDefault();
     addToCart(product, defaultSize);
     alert(`¡${product.name} agregado al carrito! 🛒`);
@@ -34,25 +36,37 @@ function ProductCard({ product, isNew }) {
 
   return (
     <div className="group flex flex-col h-full bg-zinc-950 p-3 border border-transparent hover:border-zinc-900 transition-colors">
-      <div className="overflow-hidden bg-zinc-900 aspect-square relative mb-4">
-        {/* 🔥 Renderiza la ruta local */}
-        <img
-          src={rutaImagenLocal}
-          alt={product.name}
-          className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${isAgotado ? 'opacity-50 grayscale' : ''}`}
-        />
-        {isNew && !isAgotado && (
-          <span className="absolute top-2 right-2 bg-white text-black text-[9px] font-black uppercase px-2 py-0.5 tracking-wider">NEW</span>
-        )}
-        {isAgotado && (
-          <span className="absolute top-2 left-2 bg-red-600 text-white text-[9px] font-black uppercase px-2 py-0.5 tracking-wider">SOLD OUT</span>
-        )}
-      </div>
+      
+      {/* 🔗 ENLACE QUE ENVUELVE FOTO, NOMBRE Y PRECIO */}
+      <Link href={`/producto/${product.id}`} className="block cursor-pointer flex-grow">
+        
+        {/* Contenedor de la Imagen */}
+        <div className="overflow-hidden bg-zinc-900 aspect-square relative mb-4">
+          <img
+            src={rutaImagenLocal}
+            alt={product.name}
+            className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${isAgotado ? 'opacity-50 grayscale' : ''}`}
+          />
+          {isNew && !isAgotado && (
+            <span className="absolute top-2 right-2 bg-white text-black text-[9px] font-black uppercase px-2 py-0.5 tracking-wider">NEW</span>
+          )}
+          {isAgotado && (
+            <span className="absolute top-2 left-2 bg-red-600 text-white text-[9px] font-black uppercase px-2 py-0.5 tracking-wider">SOLD OUT</span>
+          )}
+        </div>
 
-      <h3 className="text-xs font-black uppercase tracking-tight text-white truncate">{product.name}</h3>
-      <p className="text-xs text-zinc-400 mt-1 mb-4">${product.price.toLocaleString('es-CL')}</p>
+        {/* Textos Informativos */}
+        <h3 className="text-xs font-black uppercase tracking-tight text-white truncate group-hover:text-zinc-400 transition-colors">
+          {product.name}
+        </h3>
+        <p className="text-xs text-zinc-400 mt-1 mb-4">
+          ${product.price.toLocaleString('es-CL')}
+        </p>
 
-      <div className="mt-auto">
+      </Link>
+
+      {/* 🛒 EL BOTÓN QUEDA AFUERA, ABAJO */}
+      <div className="mt-auto pt-2">
         <button
           onClick={handleAddToCart}
           disabled={isAgotado}
@@ -62,6 +76,7 @@ function ProductCard({ product, isNew }) {
           {isAgotado ? "Sin Stock" : "Agregar"}
         </button>
       </div>
+
     </div>
   );
 }
@@ -157,11 +172,10 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* 🔥 REVENTANDO BORDES: BANNER EDITORIAL COMPLETAMENTE FULL-WIDTH (Afuera de los contenedores chicos) */}
+      {/* BANNER EDITORIAL COMPLETAMENTE FULL-WIDTH */}
       <div className="bg-white text-black w-full grid grid-cols-1 md:grid-cols-3 my-14 min-h-[450px] overflow-hidden">
-
         {/* LADO IZQUIERDO (Texto) */}
-        <div className="md:col-span-2 flex flex-col justify-center px-8 py-16 md:px-16 lg:px-24">
+        <div className="md:col-span-2 flex flex-col justify-center px-8 py-16 md:px-16 lg:px-24 text-left">
           <span className="text-xs font-bold tracking-widest text-zinc-400 uppercase mb-3">
             Colección Limitada
           </span>
@@ -172,12 +186,12 @@ export default function HomePage() {
             Nuestras prendas están diseñadas meticulosamente en Chile, buscando el equilibrio perfecto entre cortes relajados y materiales de alta durabilidad. Creado por y para la cultura urbana.
           </p>
           <div>
-            <a
+            <Link
               href="/catalogo"
               className="inline-block bg-black text-white text-xs font-black tracking-widest uppercase px-8 py-4 hover:bg-zinc-800 transition-colors"
             >
               Explorar el drop
-            </a>
+            </Link>
           </div>
         </div>
 

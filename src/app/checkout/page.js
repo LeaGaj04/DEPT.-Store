@@ -5,7 +5,6 @@ import Link from "next/link";
 
 export default function CheckoutPage() {
   const { cartItems, getCartTotal, clearCart } = useCart();
-  // Puedes dejar Venti o Webpay como default
   const [metodoPago, setMetodoPago] = useState("venti"); 
   const [cargando, setCargando] = useState(false);
 
@@ -46,7 +45,6 @@ export default function CheckoutPage() {
         localStorage.setItem("latest_order_payer", JSON.stringify(formData));
         
         // 🔥 Si la API devuelve un token (como Webpay), lo mandamos en la URL. 
-        // Si no (como Venti o MP), mandamos solo a la URL.
         if (data.token) {
           window.location.href = `${data.url}?token_ws=${data.token}`;
         } else {
@@ -73,60 +71,60 @@ export default function CheckoutPage() {
           {/* FORMULARIO DE ENVÍO */}
           <div className="lg:col-span-7 space-y-8 text-left">
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-6 border-b border-zinc-900 pb-2">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400 mb-6 border-b border-zinc-900 pb-2">
                 1. Datos de Contacto
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input required type="text" name="nombre" placeholder="Nombre" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm focus:outline-none focus:border-white transition-colors" />
-                <input required type="text" name="apellido" placeholder="Apellido" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm focus:outline-none focus:border-white transition-colors" />
-                <input required type="email" name="email" placeholder="Correo Electrónico" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm focus:outline-none focus:border-white transition-colors md:col-span-2" />
-                <input required type="text" name="telefono" placeholder="Teléfono de contacto" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm focus:outline-none focus:border-white transition-colors" />
-                <input required type="text" name="rut" placeholder="RUT (ej: 12.345.678-9)" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm focus:outline-none focus:border-white transition-colors" />
+                <input required type="text" name="nombre" placeholder="Nombre" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-white transition-colors" />
+                <input required type="text" name="apellido" placeholder="Apellido" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-white transition-colors" />
+                <input required type="email" name="email" placeholder="Correo Electrónico" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-white transition-colors md:col-span-2" />
+                <input required type="text" name="telefono" placeholder="Teléfono de contacto" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-white transition-colors" />
+                <input required type="text" name="rut" placeholder="RUT (ej: 12.345.678-9)" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-white transition-colors" />
               </div>
             </div>
 
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-6 border-b border-zinc-900 pb-2">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400 mb-6 border-b border-zinc-900 pb-2">
                 2. Dirección de Despacho
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input required type="text" name="region" placeholder="Región" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm focus:outline-none focus:border-white transition-colors" />
-                <input required type="text" name="comuna" placeholder="Comuna" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm focus:outline-none focus:border-white transition-colors" />
-                <input required type="text" name="calle" placeholder="Calle / Avenida" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm focus:outline-none focus:border-white transition-colors md:col-span-2" />
-                <input required type="text" name="numero" placeholder="Número de Casa/Depto/Block" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm focus:outline-none focus:border-white transition-colors" />
+                <input required type="text" name="region" placeholder="Región" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-white transition-colors" />
+                <input required type="text" name="comuna" placeholder="Comuna" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-white transition-colors" />
+                <input required type="text" name="calle" placeholder="Calle / Avenida" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-white transition-colors md:col-span-2" />
+                <input required type="text" name="numero" placeholder="Número de Casa/Depto/Block" onChange={handleInputChange} className="w-full bg-zinc-950 border border-zinc-900 p-4 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-white transition-colors" />
               </div>
             </div>
 
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-widest text-gray-400 mb-6 border-b border-zinc-900 pb-2">
+              <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400 mb-6 border-b border-zinc-900 pb-2">
                 3. Método de Pago
               </h2>
               <div className="space-y-3">
                 {/* OPCIÓN VENTI */}
-                <label className={`flex items-center justify-between p-4 border cursor-pointer transition-colors ${metodoPago === 'venti' ? 'border-white bg-zinc-950' : 'border-zinc-900 bg-transparent'}`}>
+                <label className={`flex items-center justify-between p-4 border cursor-pointer transition-colors ${metodoPago === 'venti' ? 'border-white bg-zinc-950' : 'border-zinc-900 bg-transparent hover:border-zinc-700'}`}>
                   <div className="flex items-center gap-3">
-                    <input type="radio" name="payment" checked={metodoPago === "venti"} onChange={() => setMetodoPago("venti")} className="accent-white" />
+                    <input type="radio" name="payment" checked={metodoPago === "venti"} onChange={() => setMetodoPago("venti")} className="accent-white cursor-pointer" />
                     <span className="text-sm font-bold uppercase tracking-wider">Venti</span>
                   </div>
-                  <span className="text-xs text-gray-400">Tarjetas y Transferencias</span>
+                  <span className="text-xs text-zinc-400">Tarjetas y Transferencias</span>
                 </label>
 
                 {/* OPCIÓN MERCADOPAGO */}
-                <label className={`flex items-center justify-between p-4 border cursor-pointer transition-colors ${metodoPago === 'mercadopago' ? 'border-white bg-zinc-950' : 'border-zinc-900 bg-transparent'}`}>
+                <label className={`flex items-center justify-between p-4 border cursor-pointer transition-colors ${metodoPago === 'mercadopago' ? 'border-white bg-zinc-950' : 'border-zinc-900 bg-transparent hover:border-zinc-700'}`}>
                   <div className="flex items-center gap-3">
-                    <input type="radio" name="payment" checked={metodoPago === "mercadopago"} onChange={() => setMetodoPago("mercadopago")} className="accent-white" />
-                    <span className="text-sm font-bold uppercase tracking-wider">MercadoPago(Sin Servicio)</span>
+                    <input type="radio" name="payment" checked={metodoPago === "mercadopago"} onChange={() => setMetodoPago("mercadopago")} className="accent-white cursor-pointer" />
+                    <span className="text-sm font-bold uppercase tracking-wider">MercadoPago (Sin Servicio)</span>
                   </div>
-                  <span className="text-xs text-gray-400">Tarjetas de Crédito / Débito</span>
+                  <span className="text-xs text-zinc-400">Tarjetas de Crédito / Débito</span>
                 </label>
 
                 {/* OPCIÓN WEBPAY / TRANSBANK */}
-                <label className={`flex items-center justify-between p-4 border cursor-pointer transition-colors ${metodoPago === 'webpay' ? 'border-white bg-zinc-950' : 'border-zinc-900 bg-transparent'}`}>
+                <label className={`flex items-center justify-between p-4 border cursor-pointer transition-colors ${metodoPago === 'webpay' ? 'border-white bg-zinc-950' : 'border-zinc-900 bg-transparent hover:border-zinc-700'}`}>
                   <div className="flex items-center gap-3">
-                    <input type="radio" name="payment" checked={metodoPago === "webpay"} onChange={() => setMetodoPago("webpay")} className="accent-white" />
+                    <input type="radio" name="payment" checked={metodoPago === "webpay"} onChange={() => setMetodoPago("webpay")} className="accent-white cursor-pointer" />
                     <span className="text-sm font-bold uppercase tracking-wider">Webpay Plus</span>
                   </div>
-                  <span className="text-xs text-gray-400">Tarjetas y Redcompra</span>
+                  <span className="text-xs text-zinc-400">Tarjetas y Redcompra</span>
                 </label>
               </div>
             </div>
@@ -138,8 +136,8 @@ export default function CheckoutPage() {
               <h2 className="text-sm font-bold uppercase tracking-widest border-b border-zinc-900 pb-4 mb-6">Tu Carrito</h2>
               {cartItems.length === 0 ? (
                 <div className="text-center py-8">
-                  <p className="text-sm text-gray-500 uppercase tracking-widest mb-4">No tienes prendas.</p>
-                  <Link href="/catalogo" className="inline-block border border-zinc-850 text-white text-[11px] font-bold uppercase tracking-widest px-4 py-2 hover:bg-white hover:text-black transition-colors">Ir al catálogo</Link>
+                  <p className="text-sm text-zinc-500 uppercase tracking-widest mb-4">No tienes prendas.</p>
+                  <Link href="/catalogo" className="inline-block border border-zinc-800 text-white text-[11px] font-bold uppercase tracking-widest px-4 py-2 hover:bg-white hover:text-black transition-colors">Ir al catálogo</Link>
                 </div>
               ) : (
                 <>
@@ -148,7 +146,7 @@ export default function CheckoutPage() {
                       <div key={idx} className="flex items-center justify-between border-b border-zinc-900 pb-4">
                         <div>
                           <h4 className="text-sm font-bold uppercase tracking-tight text-white">{item.name}</h4>
-                          <p className="text-xs text-gray-400 uppercase mt-0.5">Talla: {item.selectedSize} × {item.quantity}</p>
+                          <p className="text-xs text-zinc-400 uppercase mt-0.5">Talla: {item.selectedSize} × {item.quantity}</p>
                         </div>
                         <p className="text-sm font-medium text-white">${(item.price * item.quantity).toLocaleString("es-CL")}</p>
                       </div>
@@ -158,7 +156,11 @@ export default function CheckoutPage() {
                     <span className="text-sm font-bold uppercase tracking-widest text-white">Total</span>
                     <span className="text-2xl font-black text-white">${getCartTotal().toLocaleString("es-CL")}</span>
                   </div>
-                  <button type="submit" disabled={cargando} className="w-full bg-white text-black text-xs font-black uppercase tracking-widest py-4 hover:bg-gray-200 transition-colors disabled:opacity-50">
+                  <button 
+                    type="submit" 
+                    disabled={cargando} 
+                    className="w-full bg-white text-black text-xs font-black uppercase tracking-widest py-4 hover:bg-zinc-200 transition-colors disabled:opacity-50 tracking-[0.15em]"
+                  >
                     {cargando ? "Procesando..." : "Confirmar y Pagar"}
                   </button>
                 </>
