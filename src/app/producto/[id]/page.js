@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { doc, getDoc, collection, getDocs, query, limit } from "firebase/firestore";
-import { db } from "../../../lib/firebase"; 
+import { db } from "../../../lib/firebase";
 import ProductCard from "../../../components/ProductCard";
 import { useCart } from "../../../context/CartContext";
 
@@ -22,27 +22,49 @@ export default function ProductPage() {
     if (!id) return;
     const fetchProductData = async () => {
       try {
-        // ✅ AQUÍ YA ESTÁ CORREGIDO A "products"
         const docRef = doc(db, "products", id);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
           const data = docSnap.data();
-          const prodData = { id: docSnap.id, ...data };
+
+          // MAPEO INTELIGENTE SEGÚN TUS ARCHIVOS REALES
+          let nombreImagen = "polera.jpg"; // Imagen por defecto por si acaso
+          const nombreProducto = data.name ? data.name.toLowerCase() : "";
+
+          if (nombreProducto.includes("beanie")) {
+            nombreImagen = "beanie.jpg";
+          } else if (nombreProducto.includes("trucker")) {
+            nombreImagen = "trucker.jpg";
+          } else if (nombreProducto.includes("polera")) {
+            nombreImagen = "polera.jpg";
+          }
+
+          const urlImagenLocal = `/products/${nombreImagen}`;
+
+          // Inyectamos la imagen correcta al producto
+          const prodData = { id: docSnap.id, image: urlImagenLocal, ...data };
           setProduct(prodData);
-          setMainImage(data.image || "");
+          setMainImage(urlImagenLocal);
 
           if (data.sizes && data.sizes.length === 1) {
             setSelectedSize(data.sizes[0]);
           }
 
-          // ✅ AQUÍ TAMBIÉN CORREGIDO A "products"
+          // Productos relacionados
           const q = query(collection(db, "products"), limit(5));
           const querySnapshot = await getDocs(q);
           const related = [];
           querySnapshot.forEach((doc) => {
             if (doc.id !== id && related.length < 4) {
-              related.push({ id: doc.id, ...doc.data() });
+              const rData = doc.data();
+              // También le aplicamos el mapeo a los relacionados para que no se rompan abajo
+              let rImg = "polera.jpg";
+              const rName = rData.name ? rData.name.toLowerCase() : "";
+              if (rName.includes("beanie")) rImg = "beanie.jpg";
+              else if (rName.includes("trucker")) rImg = "trucker.jpg";
+
+              related.push({ id: doc.id, image: `/products/${rImg}`, ...rData });
             }
           });
           setRelatedProducts(related);
@@ -71,17 +93,17 @@ export default function ProductPage() {
   return (
     <div className="min-h-screen bg-black w-full text-white pt-10 pb-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-16 mb-24">
-          
+
           {/* COLUMNA IZQUIERDA: Galería de Imágenes */}
           <div className="flex flex-col-reverse md:flex-row gap-4">
             {/* Miniaturas */}
             {product.image && (
               <div className="flex md:flex-col gap-3 overflow-x-auto md:w-24 shrink-0 hide-scrollbar">
                 {[product.image].map((img, idx) => (
-                  <button 
-                    key={idx} 
+                  <button
+                    key={idx}
                     onClick={() => setMainImage(img)}
                     className={`w-20 h-24 md:w-full md:h-32 flex-shrink-0 bg-zinc-900 border-2 transition-all ${mainImage === img ? 'border-white' : 'border-transparent'}`}
                   >
@@ -90,10 +112,10 @@ export default function ProductPage() {
                 ))}
               </div>
             )}
-            
+
             {/* Imagen Principal Grande */}
             <div className="flex-1 bg-zinc-950 aspect-[4/5] relative border border-zinc-900 overflow-hidden">
-               {mainImage ? (
+              {mainImage ? (
                 <img src={mainImage} alt={product.name} className="w-full h-full object-cover object-center" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-zinc-600 font-black tracking-widest text-sm uppercase">DEPT STUDIO</div>
@@ -117,12 +139,12 @@ export default function ProductPage() {
               </div>
               <div className="flex flex-wrap gap-3">
                 {product.sizes && product.sizes.map((size) => (
-                  <button 
+                  <button
                     key={size}
                     onClick={() => setSelectedSize(size)}
                     className={`w-14 h-14 border flex items-center justify-center font-bold transition-all uppercase
-                      ${selectedSize === size 
-                        ? 'bg-white text-black border-white' 
+                      ${selectedSize === size
+                        ? 'bg-white text-black border-white'
                         : 'bg-black text-white border-zinc-700 hover:border-zinc-400'}`}
                   >
                     {size}
@@ -133,14 +155,14 @@ export default function ProductPage() {
 
             {/* Botones de Acción */}
             <div className="flex flex-col gap-3 mb-10">
-              <button 
-                onClick={handleAddToCart} 
+              <button
+                onClick={handleAddToCart}
                 className="w-full bg-white text-black py-5 font-black uppercase tracking-widest hover:bg-zinc-300 transition-colors"
               >
                 Añadir al carrito
               </button>
-              <Link 
-                href="/checkout" 
+              <Link
+                href="/checkout"
                 className="w-full text-center bg-black text-white border border-zinc-700 py-4 text-sm font-bold uppercase tracking-widest hover:bg-zinc-900 transition-colors"
               >
                 Ir al Checkout
@@ -154,7 +176,7 @@ export default function ProductPage() {
                 {product.description ? <p className="whitespace-pre-line">{product.description}</p> : <p>Prenda diseñada bajo los más altos estándares de calidad urbana de DEPT STUDIO.</p>}
               </div>
             </div>
-            
+
             <div className="flex flex-col gap-2 text-sm text-zinc-500 pt-6 mt-6 border-t border-zinc-900">
               <p>📦 Envíos a todo Chile vía Starken / Chilexpress.</p>
               <p>🔄 Cambios garantizados por talla.</p>

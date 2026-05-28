@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { Search, User, ShoppingBag, Menu } from 'lucide-react';
 // 1. Importamos el hook del carrito
-import { useCart } from '../context/CartContext'; 
+import { useCart } from '../context/CartContext';
 
 export default function Header() {
     // 2. Extraemos la función para obtener el total de items
@@ -41,11 +41,11 @@ export default function Header() {
                         <button className="text-black hover:text-gray-600 hidden sm:block transition-colors">
                             <Search size={20} strokeWidth={1.5} />
                         </button>
-                        {/* Se mantiene tu conexión al panel de admin */}
-                        <Link href="/admin/login" className="text-black hover:text-gray-600 hidden sm:block transition-colors">
+                        {/* Se mantiene tu conexión al panel de admin/login */}
+                        <Link href="/login" className="text-black hover:text-gray-600 hidden sm:block transition-colors">
                             <User size={20} strokeWidth={1.5} />
                         </Link>
-                        
+
                         <Link href="/carrito" className="text-black hover:text-gray-600 relative transition-colors">
                             <ShoppingBag size={20} strokeWidth={1.5} />
                             {/* 3. Reemplazamos el "2" fijo por el contador dinámico */}
