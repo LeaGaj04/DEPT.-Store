@@ -1,29 +1,61 @@
 "use client";
-import Link from "next/link";
 import { useState } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../lib/firebase"; // Ajusta esta ruta según tu estructura de carpetas
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-export default function UserLogin() {
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    console.log("Intentando iniciar sesión con:", email);
-    // Aquí luego conectaremos el AuthContext de Firebase
+    setError("");
+    setLoading(true);
+
+    try {
+      // 🔥 Autenticación real con Firebase
+      await signInWithEmailAndPassword(auth, email, password);
+      
+      // 🚀 Redirección inmediata al perfil del usuario
+      router.push("/perfil");
+    } catch (err) {
+      console.error(err);
+      setError("Credenciales incorrectas. Revisa tu email y contraseña.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="bg-black min-h-screen flex items-center justify-center p-4">
-      {/* Contenedor principal estilo DEPT */}
-      <div className="bg-white w-full max-w-md p-10 md:p-14 shadow-2xl">
-        <h1 className="text-3xl font-black tracking-tighter uppercase text-black text-center mb-8">
-          INICIAR SESIÓN
-        </h1>
+    <div className="min-h-screen bg-black flex items-center justify-center px-4">
+      
+      {/* CONTENEDOR PRINCIPAL BLANCO */}
+      <div className="w-full max-w-md bg-white text-black p-8 border border-zinc-200 shadow-2xl">
+        
+        {/* LOGO / ENCABEZADO */}
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-black uppercase tracking-widest text-black mb-1">DEPT STUDIO</h1>
+          <p className="text-[10px] text-zinc-400 uppercase tracking-widest font-bold">
+            Ingresa a tu cuenta para ver tus pedidos
+          </p>
+        </div>
 
-        <form onSubmit={handleLogin} className="space-y-6">
-          {/* Campo Email */}
+        {/* ALERTA DE ERROR ESTILIZADA */}
+        {error && (
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-600 px-4 py-3 text-xs uppercase tracking-wider font-bold">
+            ⚠️ {error}
+          </div>
+        )}
+
+        {/* FORMULARIO */}
+        <form onSubmit={handleLogin} className="space-y-5">
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-zinc-500 uppercase mb-2">
+            <label className="block text-xs uppercase tracking-widest font-black text-zinc-500 mb-2">
               Email
             </label>
             <input
@@ -31,14 +63,13 @@ export default function UserLogin() {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-zinc-100 border border-zinc-200 text-black px-4 py-3 text-sm focus:outline-none focus:border-black transition-colors"
-              placeholder="tu@email.com"
+              className="w-full bg-zinc-50 border border-zinc-200 p-4 text-sm text-black focus:outline-none focus:border-black focus:bg-white transition-all uppercase placeholder-zinc-300"
+              placeholder="DEPT.CONTACT@GMAIL.COM"
             />
           </div>
 
-          {/* Campo Contraseña */}
           <div>
-            <label className="block text-[10px] font-black tracking-widest text-zinc-500 uppercase mb-2">
+            <label className="block text-xs uppercase tracking-widest font-black text-zinc-500 mb-2">
               Contraseña
             </label>
             <input
@@ -46,32 +77,31 @@ export default function UserLogin() {
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-zinc-100 border border-zinc-200 text-black px-4 py-3 text-sm focus:outline-none focus:border-black transition-colors"
+              className="w-full bg-zinc-50 border border-zinc-200 p-4 text-sm text-black focus:outline-none focus:border-black focus:bg-white transition-all placeholder-zinc-300"
               placeholder="••••••••"
             />
           </div>
 
-          {/* Botón Entrar */}
+          {/* BOTÓN INVERTIDO: FONDO NEGRO / TEXTO BLANCO */}
           <button
             type="submit"
-            className="w-full bg-black text-white font-black uppercase tracking-widest text-xs py-4 hover:bg-zinc-800 transition-colors mt-4"
+            disabled={loading}
+            className="w-full bg-black text-white py-4 font-black uppercase tracking-widest hover:bg-zinc-800 transition-colors disabled:bg-zinc-400 text-xs mt-2"
           >
-            Entrar
+            {loading ? "Cargando..." : "Iniciar Sesión"}
           </button>
         </form>
 
-        {/* Enlaces inferiores */}
-        <div className="mt-8 pt-6 border-t border-zinc-200 flex flex-col items-center space-y-4">
-          <p className="text-xs text-zinc-500">
-            ¿No tienes una cuenta?{" "}
-            <Link 
-              href="/registro" 
-              className="text-black font-black uppercase tracking-wider hover:underline"
-            >
+        {/* ENLACE DE REGISTRO */}
+        <div className="mt-8 pt-6 border-t border-zinc-100 text-center">
+          <p className="text-xs text-zinc-400 uppercase tracking-wide font-medium">
+            ¿No tienes cuenta?{" "}
+            <Link href="/registro" className="text-black font-black underline hover:text-zinc-600 transition-colors ml-1">
               Regístrate aquí
             </Link>
           </p>
         </div>
+
       </div>
     </div>
   );
