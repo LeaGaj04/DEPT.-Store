@@ -1,30 +1,19 @@
 "use client";
 import { useState, useEffect } from "react";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { auth } from "../../lib/firebase"; // Tu archivo de configuración de Firebase
+// 📦 Importamos los módulos necesarios de Firestore
+import { doc, getDoc } from "firebase/firestore";
+// Asegúrate de que apunte a tu archivo donde exportas tanto 'auth' como 'db'
+import { auth, db } from "../../lib/firebase"; 
 import { useRouter } from "next/navigation";
 
 export default function ProfilePage() {
   const router = useRouter();
   const [user, setUser] = useState(null);
+  const [userData, setUserData] = useState(null); // 📂 Estado para guardar los datos de Firestore
   const [loading, setLoading] = useState(true);
 
-  // 📝 Mantenemos tus datos simulados de Direcciones y Pedidos de la tienda por ahora
-  const [addresses, setAddresses] = useState([
-    {
-      id: "1",
-      isDefault: true,
-      name: "Leandro Gajardo",
-      street: "Ceylan 6305",
-      details: "Casa",
-      commune: "San Joaquín",
-      postalCode: "8940000",
-      city: "Santiago",
-      country: "Chile",
-      phone: "+56972217532"
-    }
-  ]);
-
+  // 📝 Mantenemos tus datos simulados de Pedidos por ahora (hasta que armemos la pasarela)
   const [orders, setOrders] = useState([
     {
       id: "15711",
@@ -36,13 +25,28 @@ export default function ProfilePage() {
     }
   ]);
 
-  // 🔐 CONTROL DE SESIÓN REAL CON FIREBASE
+  // 🔐 CONTROL DE SESIÓN Y CARGA DE DATOS DESDE FIRESTORE
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
-        setUser(currentUser); // Guardamos al usuario logueado con éxito
+        setUser(currentUser); // Guardamos la sesión activa (Auth)
+
+        try {
+          // 🔥 Extrayendo la ficha del usuario desde Cloud Firestore usando su UID único
+          const docRef = doc(db, "usuarios", currentUser.uid);
+          const docSnap = await getDoc(docRef);
+
+          if (docSnap.exists()) {
+            setUserData(docSnap.data()); // Guardamos nombres, apellidos y dirección real
+          } else {
+            console.log("No se encontró una ficha de datos para este UID.");
+          }
+        } catch (error) {
+          console.error("Error al obtener los datos de Firestore:", error);
+        }
+
       } else {
-        router.push("/login"); // 🚫 Si no está logueado, patitas para la calle (al login)
+        router.push("/login"); // 🚫 Si no está logueado, al login
       }
       setLoading(false);
     });
@@ -59,7 +63,14 @@ export default function ProfilePage() {
     }
   };
 
-  if (loading) return <div className="min-h-screen bg-black flex items-center justify-center"><p className="text-white text-xs uppercase tracking-widest font-bold animate-pulse">Verificando cuenta...</p></div>;
+  if (loading) return (
+    <div className="min-h-screen bg-black flex items-center justify-center">
+      <p className="text-white text-xs uppercase tracking-widest font-bold animate-pulse">
+        Verificando cuenta...
+      </p>
+    </div>
+  );
+  
   if (!user) return null;
 
   return (
@@ -85,14 +96,19 @@ export default function ProfilePage() {
           {/* COLUMNA IZQUIERDA: DATOS DE USUARIO REALES Y DIRECCIONES */}
           <div className="lg:col-span-2 space-y-8">
             
-            {/* TARJETA DATOS PERSONALES (CONECTADA A FIREBASE) */}
+            {/* TARJETA DATOS PERSONALES (CONECTADA A FIRESTORE) */}
             <div className="bg-zinc-950 border border-zinc-900 p-6 relative">
               <div className="flex justify-between items-start mb-4">
                 <h2 className="text-sm font-black uppercase tracking-widest text-zinc-400">Datos Personales</h2>
               </div>
               <div className="space-y-1">
-                {/* Mostramos el Mail Real que viene desde la Auth de Firebase */}
-                <p className="text-lg font-bold tracking-tight text-white">{user.displayName || "Usuario de DEPT."}</p>
+                {/* 🛠️ Concatenamos dinámicamente los dos nombres y apellidos de Firestore */}
+                <p className="text-lg font-bold tracking-tight text-white uppercase">
+                  {userData 
+                    ? `${userData.primerNombre} ${userData.segundoNombre || ''} ${userData.apellidoPaterno} ${userData.apellidoMaterno}`
+                    : "Cargando nombre..."
+                  }
+                </p>
                 <p className="text-xs text-zinc-500 uppercase tracking-widest mt-2">Correo Electrónico</p>
                 <p className="text-sm text-zinc-300">{user.email}</p>
               </div>
@@ -107,9 +123,10 @@ export default function ProfilePage() {
                 </button>
               </div>
 
+              {/* 🛠️ Renderizado Dinámico de la Dirección Predeterminada de Registro */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {addresses.map((addr) => (
-                  <div key={addr.id} className={`p-4 border ${addr.isDefault ? 'border-white' : 'border-zinc-900 bg-zinc-950/50'} relative flex flex-col justify-between h-56`}>
+                {userData?.envioPredeterminado ? (
+                  <div className="p-4 border border-white bg-zinc-950 relative flex flex-col justify-between h-52">
                     <div>
                       <div className="flex justify-between items-start mb-2">
                         <span className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 bg-white text-black">
@@ -117,15 +134,18 @@ export default function ProfilePage() {
                         </span>
                       </div>
                       <div className="text-sm space-y-0.5 text-zinc-300">
-                        <p className="font-bold text-white mb-1">{addr.name}</p>
-                        <p>{addr.street} {addr.details && `• ${addr.details}`}</p>
-                        <p>{addr.postalCode} {addr.commune}</p>
-                        <p>{addr.city}, {addr.country}</p>
+                        <p className="font-bold text-white mb-1 uppercase">
+                          {userData.primerNombre} {userData.apellidoPaterno}
+                        </p>
+                        <p>{userData.envioPredeterminado.direccion}</p>
+                        <p>{userData.envioPredeterminado.comuna}</p>
+                        <p>Santiago, Chile</p>
                       </div>
                     </div>
-                    <p className="text-xs text-zinc-500 mt-4">📞 {addr.phone}</p>
                   </div>
-                ))}
+                ) : (
+                  <p className="text-xs text-zinc-500 uppercase tracking-widest">No hay dirección de despacho guardada.</p>
+                )}
               </div>
             </div>
 
