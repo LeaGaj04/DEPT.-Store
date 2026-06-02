@@ -4,7 +4,6 @@ import { ArrowRight } from "lucide-react";
 export default function Footer() {
   // Array con las 8 URLs de Pinterest (puedes cambiarlas por las tuyas luego)
   const images = [
-
     "https://i.pinimg.com/1200x/53/a7/64/53a764d81d448ccfc3f0c4cf4b826341.jpg", // 1
     "https://i.pinimg.com/1200x/fa/ba/9f/faba9f487ee5c0d90450658a75d9671a.jpg", // 2
     "https://i.pinimg.com/736x/83/6c/47/836c475e53aff4fbfba7be929651624b.jpg", // 3
@@ -13,8 +12,6 @@ export default function Footer() {
     "https://i.pinimg.com/736x/62/c7/b3/62c7b3987f950bb7e614522577f400af.jpg", // 6
     "https://i.pinimg.com/736x/d1/3b/5e/d13b5e177573869ac09e1efbc0eef11e.jpg", // 7
     "https://i.pinimg.com/1200x/5a/d8/04/5ad804019bff3382356371293ea1a713.jpg" // 8
-
-
   ];
 
   return (
@@ -83,31 +80,31 @@ export default function Footer() {
               </form>
             </div>
 
-            {/* Lado Derecho: Enlaces */}
+            {/* Lado Derecho: Enlaces conectados a /ayuda */}
             <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
               {/* Columna 1 */}
               <div className="flex flex-col space-y-3">
                 <h4 className="font-black capitalize mb-2">ayuda</h4>
-                <Link href="#" className="text-zinc-600 text-sm hover:text-black">contacto</Link>
-                <Link href="#" className="text-zinc-600 text-sm hover:text-black">envíos</Link>
-                <Link href="#" className="text-zinc-600 text-sm hover:text-black">seguimiento de pedido</Link>
-                <Link href="#" className="text-zinc-600 text-sm hover:text-black">preguntas frecuentes</Link>
+                <Link href="/ayuda" className="text-zinc-600 text-sm hover:text-black">contacto</Link>
+                <Link href="/ayuda" className="text-zinc-600 text-sm hover:text-black">envíos</Link>
+                <Link href="/ayuda" className="text-zinc-600 text-sm hover:text-black">seguimiento de pedido</Link>
+                <Link href="/ayuda" className="text-zinc-600 text-sm hover:text-black">preguntas frecuentes</Link>
               </div>
               
               {/* Columna 2 */}
               <div className="flex flex-col space-y-3">
                 <h4 className="font-black capitalize mb-2">dept studio</h4>
-                <Link href="#" className="text-zinc-600 text-sm hover:text-black">sobre nosotros</Link>
-                <Link href="#" className="text-zinc-600 text-sm hover:text-black">campañas</Link>
-                <Link href="#" className="text-zinc-600 text-sm hover:text-black">novedades</Link>
+                <Link href="/ayuda" className="text-zinc-600 text-sm hover:text-black">sobre nosotros</Link>
+                <Link href="/ayuda" className="text-zinc-600 text-sm hover:text-black">campañas</Link>
+                <Link href="/ayuda" className="text-zinc-600 text-sm hover:text-black">novedades</Link>
               </div>
 
               {/* Columna 3 */}
               <div className="flex flex-col space-y-3">
                 <h4 className="font-black capitalize mb-2">tienda</h4>
-                <Link href="#" className="text-zinc-600 text-sm hover:text-black">dónde encontrarnos</Link>
-                <Link href="#" className="text-zinc-600 text-sm hover:text-black">guía de tallas</Link>
-                <Link href="#" className="text-zinc-600 text-sm hover:text-black">métodos de pago</Link>
+                <Link href="/ayuda" className="text-zinc-600 text-sm hover:text-black">dónde encontrarnos</Link>
+                <Link href="/ayuda" className="text-zinc-600 text-sm hover:text-black">guía de tallas</Link>
+                <Link href="/ayuda" className="text-zinc-600 text-sm hover:text-black">métodos de pago</Link>
               </div>
             </div>
 
@@ -115,14 +112,16 @@ export default function Footer() {
 
           {/* Iconos Sociales Bottom Right */}
           <div className="flex justify-end mt-12 space-x-4 items-center">
-            <Link href="#" className="text-zinc-400 hover:text-black transition-colors">
+            {/* Reemplaza la URL de Instagram de DEPT. aquí si tienes una */}
+            <Link href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-black transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
                 <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
               </svg>
             </Link>
-            <Link href="#" className="text-zinc-400 hover:text-black transition-colors font-bold text-lg">
+            {/* Reemplaza la URL de TikTok de DEPT. aquí si tienes una */}
+            <Link href="https://tiktok.com" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-black transition-colors font-bold text-lg">
               TikTok
             </Link>
           </div>
