@@ -1,10 +1,11 @@
 "use client";
 import { useState, useEffect } from "react";
-import { db } from "../lib/firebase"; // Ajusta la ruta si es necesario
+import { db } from "../lib/firebase"; 
 import { collection, getDocs } from "firebase/firestore";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
-import { useCart } from "../context/CartContext"; // Importamos tu carrito
+import { useCart } from "../context/CartContext"; 
+import InstagramMarquee from "../components/InstagramMarquee"; // ⚡ Importamos tu nuevo componente de carrusel
 
 // 1. MAPEAMOS LAS CATEGORÍAS A TUS FOTOS LOCALES EN LA CARPETA 'public/products/'
 const imagenesPorCategoria = {
@@ -82,7 +83,7 @@ function ProductCard({ product, isNew }) {
 }
 
 // ------------------------------------------------------------------
-// COMPONENTE PRINCIPAL HOMEPAGE
+// COMPONENTE PRINCIPAL HOMEPAGE (ÚNICA DECLARACIÓN EXPORTADA)
 // ------------------------------------------------------------------
 export default function HomePage() {
   const [newArrivals, setNewArrivals] = useState([]);
@@ -241,6 +242,10 @@ export default function HomePage() {
         )}
 
       </div>
+
+      {/* ⚡ EL CARRUSEL VIVE AQUÍ AHORA: Queda full-width al final de la página, calzando perfecto con el inicio del Footer */}
+      <InstagramMarquee />
+
     </div>
   );
 }
