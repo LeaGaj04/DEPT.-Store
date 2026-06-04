@@ -5,43 +5,31 @@ import { collection, getDocs } from "firebase/firestore";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { useCart } from "../context/CartContext"; 
-import InstagramMarquee from "../components/InstagramMarquee"; // ⚡ Importamos tu nuevo componente de carrusel
+import InstagramMarquee from "../components/InstagramMarquee"; 
 
-// 1. MAPEAMOS LAS CATEGORÍAS A TUS FOTOS LOCALES EN LA CARPETA 'public/products/'
 const imagenesPorCategoria = {
   "Trucker Hats": "/products/trucker.jpg",
   "Beanies": "/products/beanie.jpg",
   "Poleras": "/products/polera.jpg",
 };
 
-// ------------------------------------------------------------------
-// COMPONENTE: Tarjeta individual limpia con redirección a /producto/[id]
-// ------------------------------------------------------------------
 function ProductCard({ product, isNew }) {
   const { addToCart } = useCart();
-
-  // Tomamos la primera talla automáticamente (ideal para tus gorros "Talla Única")
   const defaultSize = product.sizes && product.sizes.length > 0 ? product.sizes[0] : "Única";
   const isAgotado = product.status === "Agotado";
 
   const handleAddToCart = (e) => {
-    // 🛑 Crucial: Evita que el clic en el botón active el Link de la tarjeta
     e.stopPropagation();
     e.preventDefault();
     addToCart(product, defaultSize);
     alert(`¡${product.name} agregado al carrito! 🛒`);
   };
 
-  // 2. ASIGNAMOS LA RUTA LOCAL AUTOMÁTICAMENTE
   const rutaImagenLocal = imagenesPorCategoria[product.category] || "/products/default.jpg";
 
   return (
     <div className="group flex flex-col h-full bg-zinc-950 p-3 border border-transparent hover:border-zinc-900 transition-colors">
-      
-      {/* 🔗 ENLACE QUE ENVUELVE FOTO, NOMBRE Y PRECIO */}
       <Link href={`/producto/${product.id}`} className="block cursor-pointer flex-grow">
-        
-        {/* Contenedor de la Imagen */}
         <div className="overflow-hidden bg-zinc-900 aspect-square relative mb-4">
           <img
             src={rutaImagenLocal}
@@ -56,17 +44,14 @@ function ProductCard({ product, isNew }) {
           )}
         </div>
 
-        {/* Textos Informativos */}
         <h3 className="text-xs font-black uppercase tracking-tight text-white truncate group-hover:text-zinc-400 transition-colors">
           {product.name}
         </h3>
         <p className="text-xs text-zinc-400 mt-1 mb-4">
           ${product.price.toLocaleString('es-CL')}
         </p>
-
       </Link>
 
-      {/* 🛒 EL BOTÓN QUEDA AFUERA, ABAJO */}
       <div className="mt-auto pt-2">
         <button
           onClick={handleAddToCart}
@@ -77,14 +62,10 @@ function ProductCard({ product, isNew }) {
           {isAgotado ? "Sin Stock" : "Agregar"}
         </button>
       </div>
-
     </div>
   );
 }
 
-// ------------------------------------------------------------------
-// COMPONENTE PRINCIPAL HOMEPAGE (ÚNICA DECLARACIÓN EXPORTADA)
-// ------------------------------------------------------------------
 export default function HomePage() {
   const [newArrivals, setNewArrivals] = useState([]);
   const [beanies, setBeanies] = useState([]);
@@ -97,28 +78,25 @@ export default function HomePage() {
         const querySnapshot = await getDocs(collection(db, "products"));
         const allProducts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-        // Ordenamos por fecha (más nuevos primero)
         const sortedProducts = allProducts.sort((a, b) => {
           const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
           const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
           return timeB - timeA;
         });
 
-        // 1. El Último Drop (Los 4 más nuevos de toda la tienda)
         setNewArrivals(sortedProducts.slice(0, 4));
 
-        // 2. Filtrar sección de Beanies
         const filteredBeanies = sortedProducts.filter(p => p.category === "Beanies" || p.category === "beanies");
         setBeanies(filteredBeanies);
 
-        // 3. Filtrar sección de Trucker Hats
         const filteredTruckers = sortedProducts.filter(p => p.category === "Trucker Hats" || p.category === "Truckers" || p.category === "trucker");
         setTruckers(filteredTruckers);
 
       } catch (error) {
         console.error("Error cargando productos en el Inicio:", error);
       } finally {
-        setLoading(false);
+        // 🛠️ ¡CORREGIDO AQUÍ! Cambiado 'loading(false)' por 'setLoading(false)'
+        setLoading(false); 
       }
     };
 
@@ -151,7 +129,6 @@ export default function HomePage() {
 
       {/* BLOCK CON MARGEN CENTRADO SÓLO PARA "LO NUEVO" */}
       <div className="max-w-7xl mx-auto px-4 pt-16 pb-6">
-        {/* SECCIÓN 2: ÚLTIMO DROP */}
         <div>
           <div className="mb-8 border-b border-zinc-900 pb-4 flex justify-between items-end">
             <h2 className="text-xl font-black uppercase tracking-tight">Lo Nuevo</h2>
@@ -173,9 +150,48 @@ export default function HomePage() {
         </div>
       </div>
 
+      {/* ⚡ CINTA MARQUEE EN MOVIMIENTO: ¡Ahora con CSS e Inyecciones puras sin depender de Tailwind! */}
+      <div style={{
+        width: '100%',
+        backgroundColor: '#000000',
+        padding: '24px 0',
+        overflow: 'hidden',
+        borderTop: '1px solid #18181b',
+        borderBottom: '1px solid #18181b',
+        display: 'flex',
+        userSelect: 'none'
+      }}>
+        {/* Inyectamos los keyframes para la animación infinita de forma nativa */}
+        <style>{`
+          @keyframes marqueeNativo {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+          }
+        `}</style>
+        <div style={{
+          display: 'flex',
+          whiteSpace: 'nowrap',
+          animation: 'marqueeNativo 20s linear infinite'
+        }}>
+          {[...Array(12)].map((_, i) => (
+            <span key={i} style={{
+              fontSize: '2rem',
+              fontWeight: '900',
+              textTransform: 'uppercase',
+              letterSpacing: '-0.05em',
+              color: '#ffffff',
+              margin: '0 24px',
+              display: 'inline-flex',
+              alignItems: 'center'
+            }}>
+              Pronto nuevo drop <span style={{ marginLeft: '40px', color: '#dc2626' }}>★</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
       {/* BANNER EDITORIAL COMPLETAMENTE FULL-WIDTH */}
       <div className="bg-white text-black w-full grid grid-cols-1 md:grid-cols-3 my-14 min-h-[450px] overflow-hidden">
-        {/* LADO IZQUIERDO (Texto) */}
         <div className="md:col-span-2 flex flex-col justify-center px-8 py-16 md:px-16 lg:px-24 text-left">
           <span className="text-xs font-bold tracking-widest text-zinc-400 uppercase mb-3">
             Colección Limitada
@@ -196,7 +212,6 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* LADO DERECHO - FOTO */}
         <div className="md:col-span-1 min-h-[350px] md:min-h-full bg-zinc-100 relative">
           <img
             src="https://i.pinimg.com/736x/7e/e1/13/7ee113259ef01010b268f8f26e30ea03.jpg"
@@ -208,7 +223,6 @@ export default function HomePage() {
 
       {/* NUEVO BLOCK CON MARGEN CENTRADO PARA LAS COLECCIONES RESTANTES */}
       <div className="max-w-7xl mx-auto px-4 pb-16 space-y-24">
-
         {/* SECCIÓN 3: APARTADO DE BEANIES */}
         {!loading && beanies.length > 0 && (
           <div>
@@ -240,12 +254,9 @@ export default function HomePage() {
             </div>
           </div>
         )}
-
       </div>
 
-      {/* ⚡ EL CARRUSEL VIVE AQUÍ AHORA: Queda full-width al final de la página, calzando perfecto con el inicio del Footer */}
       <InstagramMarquee />
-
     </div>
   );
 }
