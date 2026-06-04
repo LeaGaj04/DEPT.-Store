@@ -4,12 +4,10 @@ import { db, auth } from "../../../lib/firebase";
 import { collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { Trash2, Plus, LogOut, Package, Tag, CheckCircle, BarChart2, Clock, ShieldAlert } from "lucide-react";
+import { Trash2, Plus, LogOut, Package, Tag, CheckCircle, BarChart2, Clock } from "lucide-react";
 
 export default function AdminDashboard() {
-  // Ajustamos las pestañas principales incluyendo 'analytics'
   const [activeTab, setActiveTab] = useState("products");
-  // Filtro interno para la pestaña de Órdenes: "Todos", "Pendiente", "En Preparación", "Enviado"
   const [orderFilter, setOrderFilter] = useState("Todos");
   
   const [products, setProducts] = useState([]);
@@ -18,7 +16,6 @@ export default function AdminDashboard() {
   const [user, setUser] = useState(null);
   const router = useRouter();
 
-  // Estado del formulario
   const [newProduct, setNewProduct] = useState({
     name: "",
     price: "",
@@ -102,7 +99,7 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error("Error creando producto:", err);
       alert("Hubo un error al crear el producto.");
-    } final {
+    } finally { // ⚡ ¡CORREGIDO AQUÍ! Cambiado de final a finally
       setIsUploading(false);
     }
   };
@@ -127,12 +124,7 @@ export default function AdminDashboard() {
 
   const handleLogout = () => signOut(auth);
 
-  // ------------------------------------------------------------------
-  // LÓGICA DE PROCESAMIENTO DE ANALÍTICAS (Monto ganado e items vendidos)
-  // ------------------------------------------------------------------
   const currentYear = new Date().getFullYear();
-  
-  // Estructura limpia para los 12 meses
   const mesesNombres = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
   const datosMensuales = mesesNombres.map((name) => ({ name, totalGarantias: 0, itemsVendidos: 0 }));
 
@@ -143,12 +135,9 @@ export default function AdminDashboard() {
     if (!order.createdAt) return;
     const fechaPedido = order.createdAt.toDate ? order.createdAt.toDate() : new Date();
     
-    // Solo tomamos en cuenta los pedidos pagados, en preparación o enviados del año actual
     if (fechaPedido.getFullYear() === currentYear && (order.status === "Pagado" || order.status === "En Preparación" || order.status === "Enviado")) {
       const mesIndex = fechaPedido.getMonth();
       const montoTotal = Number(order.total || 0);
-      
-      // Contar cantidad de prendas físicas en esta orden
       const cantPrendas = order.items?.reduce((acc, item) => acc + Number(item.quantity || 0), 0) || 0;
 
       datosMensuales[mesIndex].totalGarantias += montoTotal;
@@ -159,10 +148,8 @@ export default function AdminDashboard() {
     }
   });
 
-  // Encontrar el valor más alto del mes para calcular proporciones visuales de las barras
   const maxMensual = Math.max(...datosMensuales.map(d => d.totalGarantias), 1);
 
-  // Filtrado dinámico de las órdenes en base a las sub-pestañas de estado
   const filteredOrders = orders.filter(o => {
     if (orderFilter === "Todos") return true;
     return (o.status || "Pendiente") === orderFilter;
@@ -213,7 +200,6 @@ export default function AdminDashboard() {
       {/* CONTENIDO 1: INVENTARIO DE PRODUCTOS */}
       {activeTab === "products" && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Formulario (Mantiene intacta la lógica que tenías) */}
           <div className="lg:col-span-1 bg-white p-8 rounded-sm shadow-lg">
             <h2 className="text-sm font-black uppercase tracking-widest mb-6 text-black">Nuevo Producto</h2>
             <form onSubmit={handleAddProduct} className="space-y-4">
@@ -292,7 +278,6 @@ export default function AdminDashboard() {
             </form>
           </div>
 
-          {/* Tabla de Productos */}
           <div className="lg:col-span-2">
             <h2 className="text-sm font-black uppercase tracking-widest mb-6">Productos en Tienda ({products.length})</h2>
             <div className="overflow-x-auto border border-zinc-900 bg-zinc-950">
@@ -335,12 +320,10 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* CONTENIDO 2: PEDIDOS RECIBIDOS (CON FILTROS INTERNOS SOLICITADOS) */}
+      {/* CONTENIDO 2: PEDIDOS RECIBIDOS */}
       {activeTab === "orders" && (
         <div className="space-y-6">
-          
-          {/* Sub-Filtros para clasificar pedidos por estado */}
-          <div className="flex space-x-2 border-b border-zinc-900 pb-4">
+          <div className="flex space-x-2 border-b border-zinc-900 pb-4 overflow-x-auto">
             {["Todos", "Pagado", "En Preparación", "Enviado"].map((status) => (
               <button
                 key={status}
@@ -352,7 +335,6 @@ export default function AdminDashboard() {
             ))}
           </div>
 
-          {/* Tabla de Órdenes */}
           <div className="bg-zinc-950 border border-zinc-900 rounded-sm">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
@@ -399,7 +381,6 @@ export default function AdminDashboard() {
                         </span>
                       </td>
                       <td className="p-4 text-right flex justify-end space-x-2 mt-2">
-                        {/* Botón 1: Pasar de Pagado a En Preparación */}
                         {order.status === 'Pagado' && (
                           <button
                             onClick={() => handleUpdateOrderStatus(order.id, 'En Preparación')}
@@ -409,7 +390,6 @@ export default function AdminDashboard() {
                           </button>
                         )}
                         
-                        {/* Botón 2: Pasar de En Preparación a Enviado */}
                         {order.status === 'En Preparación' && (
                           <button
                             onClick={() => handleUpdateOrderStatus(order.id, 'Enviado')}
@@ -435,11 +415,9 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* CONTENIDO 3: REPORTES Y VENTAS DEL AÑO (GRÁFICO Y CONTADORES NUEVOS) */}
+      {/* CONTENIDO 3: REPORTES Y VENTAS DEL AÑO */}
       {activeTab === "analytics" && (
-        <div className="space-y-10 animate-fade-in">
-          
-          {/* Tarjetas de Resumen Anual */}
+        <div className="space-y-10">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-zinc-950 border border-zinc-900 p-6 flex flex-col justify-between">
               <span className="text-[10px] uppercase font-bold tracking-widest text-gray-500">Monto Facturado ({currentYear})</span>
@@ -454,37 +432,31 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Gráfico Minimalista de Barras Nativas Tailwind */}
           <div className="bg-zinc-950 border border-zinc-900 p-6">
             <div className="mb-6">
               <h3 className="text-xs font-black uppercase tracking-widest text-white">Desempeño de Ventas Mensuales</h3>
               <p className="text-[10px] text-gray-500 uppercase mt-0.5">Historial monetario del año en curso</p>
             </div>
 
-            {/* Contenedor del Gráfico */}
             <div className="h-64 flex items-end justify-between pt-6 px-2 border-b border-zinc-900 gap-2 md:gap-4 overflow-x-auto">
               {datosMensuales.map((mes, index) => {
-                // Cálculo de la altura porcentual basado en el mes con más ingresos
                 const porcentajeAltura = (mes.totalGarantias / maxMensual) * 100;
 
                 return (
                   <div key={index} className="flex-1 flex flex-col items-center group h-full justify-end min-w-[30px]">
-                    {/* Tooltip flotante al pasar el mouse por encima de la barra */}
                     <div className="absolute mb-20 bg-white text-black text-[9px] font-black px-2 py-1 uppercase rounded-sm pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-xl z-30">
                       ${mes.totalGarantias.toLocaleString('es-CL')} ({mes.itemsVendidos} unds)
                     </div>
 
-                    {/* La barra de ingresos */}
                     <div 
-                      className={`w-full bg-zinc-800 group-hover:bg-white transition-all duration-500 relative`}
-                      style={{ height: `${Math.max(porcentajeAltura, 2)}%` }} // Mínimo 2% para que se vea una línea sutil si está en 0
+                      className="w-full bg-zinc-800 group-hover:bg-white transition-all duration-500 relative"
+                      style={{ height: `${Math.max(porcentajeAltura, 2)}%` }}
                     >
                       {mes.totalGarantias > 0 && (
                         <div className="absolute top-0 left-0 right-0 h-1 bg-red-600" />
                       )}
                     </div>
 
-                    {/* Nombre del mes */}
                     <span className="text-[10px] font-bold text-gray-500 uppercase mt-2 block group-hover:text-white transition-colors">
                       {mes.name}
                     </span>
@@ -493,12 +465,10 @@ export default function AdminDashboard() {
               })}
             </div>
 
-            {/* Leyenda aclaratoria inferior */}
             <div className="flex justify-end mt-4 space-x-6 text-[10px] uppercase text-gray-500 tracking-wider font-bold">
               <div className="flex items-center"><span className="w-2 h-2 bg-zinc-800 inline-block mr-1.5" /> Sin Ventas</div>
               <div className="flex items-center"><span className="w-2 h-2 bg-red-600 inline-block mr-1.5" /> Mes con Movimiento</div>
             </div>
-
           </div>
         </div>
       )}
