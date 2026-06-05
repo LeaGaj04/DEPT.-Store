@@ -4,7 +4,8 @@ import { db, auth } from "../../../lib/firebase";
 import { collection, addDoc, getDocs, deleteDoc, doc, serverTimestamp, updateDoc } from "firebase/firestore";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { useRouter } from "next/navigation";
-import { Trash2, Plus, LogOut, Package, Tag, CheckCircle, BarChart2, Clock } from "lucide-react";
+import { Trash2, Plus, LogOut, Package, Tag, CheckCircle, BarChart2, Clock, TrendingUp } from "lucide-react";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("products");
@@ -99,7 +100,7 @@ export default function AdminDashboard() {
     } catch (err) {
       console.error("Error creando producto:", err);
       alert("Hubo un error al crear el producto.");
-    } finally { // ⚡ ¡CORREGIDO AQUÍ! Cambiado de final a finally
+    } finally { 
       setIsUploading(false);
     }
   };
@@ -131,6 +132,28 @@ export default function AdminDashboard() {
   let totalGanadoAnual = 0;
   let totalItemsVendidosAnual = 0;
 
+  // 🛡️ FIX APLICADO: Escudo antibug para lectura de datos corruptos en Firebase
+  const conteoVentasPorProducto = {};
+  orders.forEach((order) => {
+    if (order.status === "Pagado" || order.status === "En Preparación" || order.status === "Enviado") {
+      order.items?.forEach((item) => {
+        // Obligamos a que sea un String válido antes de pasarlo a mayúsculas
+        const nombreBase = item?.name ? String(item.name).toUpperCase().trim() : "DESCONOCIDO";
+        conteoVentasPorProducto[nombreBase] = (conteoVentasPorProducto[nombreBase] || 0) + Number(item?.quantity || 0);
+      });
+    }
+  });
+
+  // 🛡️ FIX APLICADO: Escudo para los nombres del inventario
+  const chartData = products.map((p) => {
+    const nombreProd = p?.name ? String(p.name).toUpperCase().trim() : "SIN NOMBRE";
+    return {
+      name: nombreProd,
+      "Stock Disponible": Number(p?.stock || 0),
+      "Unidades Vendidas": conteoVentasPorProducto[nombreProd] || 0,
+    };
+  });
+
   orders.forEach((order) => {
     if (!order.createdAt) return;
     const fechaPedido = order.createdAt.toDate ? order.createdAt.toDate() : new Date();
@@ -138,7 +161,7 @@ export default function AdminDashboard() {
     if (fechaPedido.getFullYear() === currentYear && (order.status === "Pagado" || order.status === "En Preparación" || order.status === "Enviado")) {
       const mesIndex = fechaPedido.getMonth();
       const montoTotal = Number(order.total || 0);
-      const cantPrendas = order.items?.reduce((acc, item) => acc + Number(item.quantity || 0), 0) || 0;
+      const cantPrendas = order.items?.reduce((acc, item) => acc + Number(item?.quantity || 0), 0) || 0;
 
       datosMensuales[mesIndex].totalGarantias += montoTotal;
       datosMensuales[mesIndex].itemsVendidos += cantPrendas;
@@ -418,6 +441,54 @@ export default function AdminDashboard() {
       {/* CONTENIDO 3: REPORTES Y VENTAS DEL AÑO */}
       {activeTab === "analytics" && (
         <div className="space-y-10">
+          
+          <div className="w-full bg-black border border-zinc-900 p-6 rounded-sm">
+            <div className="flex items-center space-x-2 mb-6">
+              <TrendingUp size={18} className="text-white" />
+              <h3 className="text-xs font-black uppercase tracking-widest text-white">
+                BALANCE: STOCK VS UNIDADES VENDIDAS
+              </h3>
+            </div>
+            
+            <div className="w-full h-[400px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={chartData} margin={{ top: 20, right: 30, left: 10, bottom: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#18181b" />
+                  <XAxis 
+                    dataKey="name" 
+                    stroke="#71717a" 
+                    fontSize={10} 
+                    fontWeight="bold"
+                    tickLine={false}
+                  />
+                  <YAxis stroke="#71717a" fontSize={10} tickLine={false} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: "#09090b", borderColor: "#27272a", color: "#fff", fontSize: "12px" }}
+                  />
+                  <Legend 
+                    verticalAlign="bottom" 
+                    align="center"
+                    wrapperStyle={{ paddingTop: "35px" }}
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="Stock Disponible" 
+                    stroke="#6b7280" 
+                    strokeWidth={3}
+                    activeDot={{ r: 6 }} 
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="Unidades Vendidas" 
+                    stroke="#dc2626" 
+                    strokeWidth={3}
+                    activeDot={{ r: 6 }} 
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-zinc-950 border border-zinc-900 p-6 flex flex-col justify-between">
               <span className="text-[10px] uppercase font-bold tracking-widest text-gray-500">Monto Facturado ({currentYear})</span>
