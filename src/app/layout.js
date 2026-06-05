@@ -2,9 +2,11 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import TopBar from "../components/TopBar";
 import Header from "../components/Header";
-import Footer from "../components/Footer"; // Ya lo tenías importado, ¡excelente!
+import Footer from "../components/Footer"; 
 // 1. Importamos el proveedor del carrito
 import { CartProvider } from "../context/CartContext";
+// 🎁 Importamos el nuevo componente del Popup y Viñeta flotante
+import WelcomeDiscount from "../components/WelcomeDiscount"; 
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,6 +24,10 @@ export default function RootLayout({ children }) {
         <CartProvider>
           <TopBar />
           <Header />
+          
+          {/* ⚡ El sistema de descuento corre aquí de forma invisible controlando los tiempos */}
+          <WelcomeDiscount />
+
           <main className="min-h-screen">
             {children}
           </main>
