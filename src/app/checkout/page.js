@@ -5,7 +5,7 @@ import Link from "next/link";
 
 export default function CheckoutPage() {
   const { cartItems, getCartTotal, clearCart } = useCart();
-  const [metodoPago, setMetodoPago] = useState("venti"); 
+  const [metodoPago, setMetodoPago] = useState("venti");
   const [cargando, setCargando] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -20,7 +20,7 @@ export default function CheckoutPage() {
   const handlePagar = async (e) => {
     e.preventDefault();
     if (cartItems.length === 0) return alert("Tu carrito está vacío");
-    
+
     setCargando(true);
 
     try {
@@ -43,8 +43,13 @@ export default function CheckoutPage() {
 
       if (response.ok && data.url) {
         localStorage.setItem("latest_order_payer", JSON.stringify(formData));
-        
-        // 🔥 Si la API devuelve un token (como Webpay), lo mandamos en la URL. 
+
+        // 👇 AGREGA ESTAS DOS LÍNEAS NUEVAS AQUÍ 👇
+        localStorage.setItem("latest_order_items", JSON.stringify(cartItems));
+        localStorage.setItem("latest_order_total", getCartTotal().toString());
+        // 👆 HASTA AQUÍ 👆
+
+        // 🔥 Si la API devuelve un token...
         if (data.token) {
           window.location.href = `${data.url}?token_ws=${data.token}`;
         } else {
@@ -156,9 +161,9 @@ export default function CheckoutPage() {
                     <span className="text-sm font-bold uppercase tracking-widest text-white">Total</span>
                     <span className="text-2xl font-black text-white">${getCartTotal().toLocaleString("es-CL")}</span>
                   </div>
-                  <button 
-                    type="submit" 
-                    disabled={cargando} 
+                  <button
+                    type="submit"
+                    disabled={cargando}
                     className="w-full bg-white text-black text-xs font-black uppercase tracking-widest py-4 hover:bg-zinc-200 transition-colors disabled:opacity-50 tracking-[0.15em]"
                   >
                     {cargando ? "Procesando..." : "Confirmar y Pagar"}
