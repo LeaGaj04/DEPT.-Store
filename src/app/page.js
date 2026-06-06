@@ -1,38 +1,109 @@
 "use client";
 import { useState, useEffect } from "react";
-import { db } from "../lib/firebase"; 
+import { db } from "../lib/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
-import { useCart } from "../context/CartContext"; 
-import InstagramMarquee from "../components/InstagramMarquee"; 
+import { useCart } from "../context/CartContext";
+import InstagramMarquee from "../components/InstagramMarquee";
+import { toast } from "react-hot-toast";
 
-const imagenesPorCategoria = {
-  "Trucker Hats": "/products/trucker.jpg",
-  "Beanies": "/products/beanie.jpg",
-  "Poleras": "/products/polera.jpg",
+// Función blindada para leer SOLO las imágenes que realmente existen en tu carpeta public/products
+const getImagePath = (product) => {
+  const name = (product.name || "").toLowerCase();
+  const category = (product.category || "").toLowerCase();
+
+  if (name.includes('polera') || category.includes('polera')) return '/products/polera.jpg';
+  if (name.includes('beanie') || category.includes('beanie')) return '/products/beanie.jpg';
+  if (name.includes('trucker') || category.includes('trucker')) return '/products/trucker.jpg';
+
+  // Si en la base de datos hay una imagen específica guardada, la usamos como plan B
+  if (product.image) return product.image;
+  if (product.imageUrl) return product.imageUrl;
+
+  // Si nada coincide, no devuelve nada para EVITAR el bucle infinito del error 404
+  return '';
 };
 
+// 👇 TARJETA DE PRODUCTO 👇
 function ProductCard({ product, isNew }) {
   const { addToCart } = useCart();
-  const defaultSize = product.sizes && product.sizes.length > 0 ? product.sizes[0] : "Única";
+  const [showSizes, setShowSizes] = useState(false);
   const isAgotado = product.status === "Agotado";
 
-  const handleAddToCart = (e) => {
+  // Obtenemos la imagen segura
+  const imagenProducto = getImagePath(product);
+
+  // Función 1: Al presionar Agregar
+  const handleIntentarAgregar = (e) => {
     e.stopPropagation();
     e.preventDefault();
-    addToCart(product, defaultSize);
-    alert(`¡${product.name} agregado al carrito! 🛒`);
+    if (isAgotado) return;
+
+    if (!product.sizes || product.sizes.length === 0) {
+      agregarAlCarritoFinal(e, "U");
+    } else {
+      setShowSizes(true);
+    }
   };
 
-  const rutaImagenLocal = imagenesPorCategoria[product.category] || "/products/default.jpg";
+  // Función 2: Al elegir la talla final
+  const agregarAlCarritoFinal = (e, sizeSelected) => {
+    e.stopPropagation();
+    e.preventDefault();
+
+    addToCart(product, sizeSelected);
+    setShowSizes(false);
+
+    toast.custom((t) => (
+      <div
+        className={`${t.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          } transform transition-all duration-300 max-w-sm w-full bg-black border border-zinc-800 shadow-2xl flex pointer-events-auto z-[9999]`}
+      >
+        <div className="flex-1 w-0 p-4">
+          <div className="flex items-start">
+            {/* Foto del Producto Arreglada: SIN onError */}
+            <div className="flex-shrink-0 pt-0.5">
+              <img
+                className="h-14 w-14 rounded-sm object-cover border border-zinc-800 bg-zinc-950"
+                src={imagenProducto}
+                alt={product.name}
+              />
+            </div>
+            {/* Textos */}
+            <div className="ml-3 flex-1">
+              <p className="text-sm font-bold text-white uppercase tracking-tight">
+                {product.name}
+              </p>
+              <p className="mt-1 text-xs text-zinc-400 uppercase">
+                Talla: {sizeSelected} <span className="mx-1">•</span> Cant: 1
+              </p>
+              <p className="mt-1 text-sm font-black text-white">
+                ${product.price?.toLocaleString("es-CL")}
+              </p>
+            </div>
+          </div>
+        </div>
+        {/* Botón para cerrar */}
+        <div className="flex border-l border-zinc-800">
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="w-full border border-transparent rounded-none p-4 flex items-center justify-center text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+    ), { duration: 4000 });
+  };
 
   return (
     <div className="group flex flex-col h-full bg-zinc-950 p-3 border border-transparent hover:border-zinc-900 transition-colors">
       <Link href={`/producto/${product.id}`} className="block cursor-pointer flex-grow">
         <div className="overflow-hidden bg-zinc-900 aspect-square relative mb-4">
+          {/* Foto Principal Arreglada: SIN onError */}
           <img
-            src={rutaImagenLocal}
+            src={imagenProducto}
             alt={product.name}
             className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${isAgotado ? 'opacity-50 grayscale' : ''}`}
           />
@@ -48,24 +119,45 @@ function ProductCard({ product, isNew }) {
           {product.name}
         </h3>
         <p className="text-xs text-zinc-400 mt-1 mb-4">
-          ${product.price.toLocaleString('es-CL')}
+          ${product.price ? product.price.toLocaleString('es-CL') : '0'}
         </p>
       </Link>
 
-      <div className="mt-auto pt-2">
-        <button
-          onClick={handleAddToCart}
-          disabled={isAgotado}
-          className="w-full bg-white text-black py-2.5 text-[10px] font-black uppercase tracking-widest hover:bg-zinc-300 transition-colors flex items-center justify-center disabled:bg-zinc-800 disabled:text-zinc-500 disabled:cursor-not-allowed"
-        >
-          <ShoppingBag size={14} className="mr-2" />
-          {isAgotado ? "Sin Stock" : "Agregar"}
-        </button>
+      {/* ⚡ ZONA DINÁMICA DE COMPRA */}
+      <div className="mt-auto pt-2 h-10">
+        {!showSizes ? (
+          <button
+            onClick={handleIntentarAgregar}
+            disabled={isAgotado}
+            className="w-full h-full bg-white text-black text-[10px] font-black uppercase tracking-widest hover:bg-zinc-300 transition-colors flex items-center justify-center disabled:bg-zinc-800 disabled:text-zinc-500 disabled:cursor-not-allowed"
+          >
+            <ShoppingBag size={14} className="mr-2" />
+            {isAgotado ? "Sin Stock" : "Agregar"}
+          </button>
+        ) : (
+          <div className="w-full h-full flex gap-1 animate-in fade-in zoom-in duration-200">
+            {product.sizes.map((size) => (
+              <button
+                key={size}
+                onClick={(e) => agregarAlCarritoFinal(e, size)}
+                className="flex-1 bg-zinc-900 border border-zinc-700 text-white text-[10px] font-bold hover:bg-white hover:text-black hover:border-white transition-colors"
+              >
+                {size}
+              </button>
+            ))}
+            <button
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowSizes(false); }}
+              className="px-3 bg-black border border-zinc-800 text-zinc-500 hover:text-white transition-colors text-xs"
+            >
+              ✕
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
+// 👇 PÁGINA PRINCIPAL 👇
 export default function HomePage() {
   const [newArrivals, setNewArrivals] = useState([]);
   const [beanies, setBeanies] = useState([]);
@@ -76,27 +168,46 @@ export default function HomePage() {
     const fetchHomeProducts = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "products"));
-        const allProducts = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        // 1. Obtenemos los productos y limpiamos tallas de gorros
+        const allProducts = querySnapshot.docs.map(doc => {
+          const data = doc.data();
+          const category = (data.category || "").toLowerCase();
+          const name = (data.name || "").toLowerCase();
 
+          // 🔥 FILTRO BLINDADO
+          if (
+            category.includes("beanie") || name.includes("beanie") ||
+            category.includes("trucker") || name.includes("trucker") ||
+            category.includes("gorro")
+          ) {
+            data.sizes = [];
+          }
+
+          return { id: doc.id, ...data };
+        });
+
+        // 2. ORDENAMOS LOS PRODUCTOS (Esta es la variable que faltaba)
+        // Ordenamos por fecha de creación (de más nuevo a más viejo)
         const sortedProducts = allProducts.sort((a, b) => {
           const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
           const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
           return timeB - timeA;
         });
 
+        // 3. Asignamos los productos ya ordenados a sus categorías
         setNewArrivals(sortedProducts.slice(0, 4));
 
-        const filteredBeanies = sortedProducts.filter(p => p.category === "Beanies" || p.category === "beanies");
+        const filteredBeanies = sortedProducts.filter(p => p.category === "Beanies" || p.category === "beanies" || p.name.toLowerCase().includes("beanie"));
         setBeanies(filteredBeanies);
 
-        const filteredTruckers = sortedProducts.filter(p => p.category === "Trucker Hats" || p.category === "Truckers" || p.category === "trucker");
+        const filteredTruckers = sortedProducts.filter(p => p.category === "Trucker Hats" || p.category === "Truckers" || p.category === "trucker" || p.name.toLowerCase().includes("trucker"));
         setTruckers(filteredTruckers);
 
       } catch (error) {
         console.error("Error cargando productos en el Inicio:", error);
       } finally {
-        // 🛠️ ¡CORREGIDO AQUÍ! Cambiado 'loading(false)' por 'setLoading(false)'
-        setLoading(false); 
+        setLoading(false);
       }
     };
 
@@ -150,7 +261,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ⚡ CINTA MARQUEE EN MOVIMIENTO: ¡Ahora con CSS e Inyecciones puras sin depender de Tailwind! */}
+      {/* ⚡ CINTA MARQUEE EN MOVIMIENTO */}
       <div style={{
         width: '100%',
         backgroundColor: '#000000',
@@ -161,7 +272,6 @@ export default function HomePage() {
         display: 'flex',
         userSelect: 'none'
       }}>
-        {/* Inyectamos los keyframes para la animación infinita de forma nativa */}
         <style>{`
           @keyframes marqueeNativo {
             0% { transform: translateX(0%); }
@@ -260,4 +370,3 @@ export default function HomePage() {
     </div>
   );
 }
-

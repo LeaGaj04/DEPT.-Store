@@ -6,6 +6,7 @@ import { doc, getDoc, collection, getDocs, query, limit } from "firebase/firesto
 import { db } from "../../../lib/firebase";
 import ProductCard from "../../../components/ProductCard";
 import { useCart } from "../../../context/CartContext";
+import { toast } from "react-hot-toast";
 
 export default function ProductPage() {
   const params = useParams();
@@ -80,11 +81,62 @@ export default function ProductPage() {
 
   const handleAddToCart = () => {
     if (!selectedSize) {
-      alert("Por favor, selecciona una talla antes de agregar al carrito.");
+      // Toast de error personalizado oscuro
+      toast.error("Por favor, selecciona una talla antes de agregar al carrito.", {
+        style: {
+          background: '#000',
+          color: '#fff',
+          border: '1px solid #27272a',
+          borderRadius: '0px',
+        },
+      });
       return;
     }
+
+    // Agregamos al contexto del carrito
     addToCart(product, selectedSize);
-    alert("¡Prenda agregada al carrito con éxito!");
+
+    // 🔥 TU NUEVA NOTIFICACIÓN NEGRA CON ANIMACIONES NATIVAS DE TAILWIND 🔥
+    toast.custom((t) => (
+      <div
+        className={`${t.visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+          } transform transition-all duration-300 max-w-sm w-full bg-black border border-zinc-800 shadow-2xl flex pointer-events-auto z-[9999]`}
+      >
+        <div className="flex-1 w-0 p-4">
+          <div className="flex items-start">
+            {/* Foto del Producto */}
+            <div className="flex-shrink-0 pt-0.5">
+              <img
+                className="h-14 w-14 rounded-sm object-cover border border-zinc-800"
+                src={product.image}
+                alt={product.name}
+              />
+            </div>
+            {/* Textos */}
+            <div className="ml-3 flex-1">
+              <p className="text-sm font-bold text-white uppercase tracking-tight">
+                {product.name}
+              </p>
+              <p className="mt-1 text-xs text-zinc-400 uppercase">
+                Talla: {selectedSize} <span className="mx-1">•</span> Cant: 1
+              </p>
+              <p className="mt-1 text-sm font-black text-white">
+                ${product.price?.toLocaleString("es-CL")}
+              </p>
+            </div>
+          </div>
+        </div>
+        {/* Botón para cerrar */}
+        <div className="flex border-l border-zinc-800">
+          <button
+            onClick={() => toast.dismiss(t.id)}
+            className="w-full border border-transparent rounded-none p-4 flex items-center justify-center text-xs font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+    ), { duration: 4000 });
   };
 
   if (loading) return <div className="min-h-screen bg-black flex items-center justify-center"><p className="text-white text-xs uppercase tracking-widest font-bold animate-pulse">Cargando prenda...</p></div>;
