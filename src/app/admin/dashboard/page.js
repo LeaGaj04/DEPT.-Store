@@ -347,7 +347,7 @@ export default function AdminDashboard() {
       {activeTab === "orders" && (
         <div className="space-y-6">
           <div className="flex space-x-2 border-b border-zinc-900 pb-4 overflow-x-auto">
-            {["Todos", "Pagado", "En Preparación", "Enviado"].map((status) => (
+            {["Todos", "Pendiente", "Pagado", "En Preparación", "Enviado"].map((status) => (
               <button
                 key={status}
                 onClick={() => setOrderFilter(status)}
