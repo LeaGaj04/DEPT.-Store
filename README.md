@@ -34,3 +34,55 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+## Mapa del Proyecto
+
+El proyecto está estructurado utilizando **Next.js (App Router)**, separando de forma clara la lógica de rutas, componentes visuales, estados globales y las integraciones con servicios externos (Firebase y pasarelas de pago).
+
+```text
+├── 📁 public/               # Archivos estáticos, imágenes de marca y recursos locales
+└── 📁 src/
+    ├── 📁 app/              # Sistema de enrutamiento principal (Next.js App Router)
+    │   ├── 📁 admin/        
+    │   │   ├── 📁 dashboard/# Panel de administración (Pedidos recibidos, reportes, etc.)
+    │   │   └── 📁 login/    
+    │   ├── 📁 api/          # Capa de Backend / Endpoints de API locales
+    │   │   ├── 📁 checkout/ # Controladores para el procesamiento de pagos
+    │   │   │   ├── 📁 mercadopago/ 
+    │   │   │   ├── 📁 venti/       
+    │   │   │   └── 📁 webpay/      
+    │   │   └── 📁 notify/   
+    │   ├── 📁 ayuda/        
+    │   ├── 📁 carrito/      
+    │   ├── 📁 catalogo/     
+    │   ├── 📁 checkout/     
+    │   │   ├── 📁 failure/  
+    │   │   ├── 📁 pending/  
+    │   │   └── 📁 success/  
+    │   ├── 📁 login/        
+    │   ├── 📁 perfil/       
+    │   ├── 📁 producto/    
+    │   ├── 📁 registro/     
+    │   ├── globals.css      
+    │   ├── layout.js        
+    │   └── page.js         
+    │
+    ├── 📁 components/       
+    │   ├── Footer.jsx       
+    │   ├── Header.jsx       
+    │   ├── InstagramMarquee.jsx
+    │   ├── InventoryChart.jsx 
+    │   ├── ProductCard.jsx  
+    │   ├── ToasterProvider.jsx 
+    │   ├── TopBar.jsx       
+    │   └── WelcomeDiscount.jsx 
+    │
+    ├── 📁 context/          
+    │   └── CartContext.jsx  
+    │
+    ├── 📁 data/             
+    │   └── mockData.js
+    │
+    └── 📁 lib/              
+        └── firebase.js      
