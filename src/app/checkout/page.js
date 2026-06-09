@@ -2,6 +2,8 @@
 import { useState } from "react";
 import { useCart } from "../../context/CartContext";
 import Link from "next/link";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../../lib/firebase";
 
 export default function CheckoutPage() {
   const { cartItems, getCartTotal, clearCart } = useCart();
@@ -43,13 +45,45 @@ export default function CheckoutPage() {
 
       if (response.ok && data.url) {
         localStorage.setItem("latest_order_payer", JSON.stringify(formData));
-
-        // 👇 AGREGA ESTAS DOS LÍNEAS NUEVAS AQUÍ 👇
         localStorage.setItem("latest_order_items", JSON.stringify(cartItems));
         localStorage.setItem("latest_order_total", getCartTotal().toString());
-        // 👆 HASTA AQUÍ 👆
 
-        // 🔥 Si la API devuelve un token...
+        // NUEVO CÓDIGO: GUARDAR EN FIREBASE COMO "PENDIENTE" 
+        try {
+          // Armamos la dirección completa en un solo string como lo pide el panel
+          const direccionCompleta = `${formData.calle} ${formData.numero}, ${formData.comuna}, ${formData.region}`;
+
+          const nuevoPedido = {
+            buyer: {
+              name: `${formData.nombre} ${formData.apellido}`,
+              email: formData.email,
+              phone: formData.telefono,
+              rut: formData.rut,
+              address: direccionCompleta
+            },
+            // Mapeamos los items para asegurarnos de que la talla se llame "size"
+            items: cartItems.map(item => ({
+              ...item,
+              size: item.selectedSize 
+            })),
+            total: getCartTotal(),
+            status: "Pendiente", // El panel lee este estado exacto
+            paymentMethod: metodoPago,
+            createdAt: serverTimestamp() // Formato de hora nativo de Firebase
+          };
+          
+          // ¡Importante! Lo enviamos a la colección "orders"
+          const docRef = await addDoc(collection(db, "orders"), nuevoPedido);
+          console.log("¡Pedido guardado en Firebase! ID:", docRef.id);
+          
+          localStorage.setItem("latest_order_id", docRef.id);
+        } catch (fbError) {
+          console.error("Error guardando el pedido en Firebase:", fbError);
+        }
+        //  FIN DEL CÓDIGO DE FIREBASE 
+
+
+        // 🔥 Si la API devuelve un token... Redirigimos al pago
         if (data.token) {
           window.location.href = `${data.url}?token_ws=${data.token}`;
         } else {

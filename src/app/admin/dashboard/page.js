@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Trash2, Plus, LogOut, Package, Tag, CheckCircle, BarChart2, Clock, TrendingUp } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
+
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("products");
   const [orderFilter, setOrderFilter] = useState("Todos");
