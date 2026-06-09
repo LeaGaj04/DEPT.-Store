@@ -344,7 +344,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* CONTENIDO 2: PEDIDOS RECIBIDOS */}
+
       {activeTab === "orders" && (
         <div className="space-y-6">
           <div className="flex space-x-2 border-b border-zinc-900 pb-4 overflow-x-auto">
@@ -439,7 +439,7 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {/* CONTENIDO 3: REPORTES Y VENTAS DEL AÑO */}
+
       {activeTab === "analytics" && (
         <div className="space-y-10">
           

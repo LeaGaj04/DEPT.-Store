@@ -26,7 +26,6 @@ export default function CheckoutPage() {
     setCargando(true);
 
     try {
-      // 🚀 DETERMINAMOS A QUÉ API LLAMAR SEGÚN EL MÉTODO SELECCIONADO
       let endpoint = "";
       if (metodoPago === "venti") endpoint = "/api/checkout/venti";
       else if (metodoPago === "mercadopago") endpoint = "/api/checkout/mercadopago";
@@ -48,9 +47,8 @@ export default function CheckoutPage() {
         localStorage.setItem("latest_order_items", JSON.stringify(cartItems));
         localStorage.setItem("latest_order_total", getCartTotal().toString());
 
-        // NUEVO CÓDIGO: GUARDAR EN FIREBASE COMO "PENDIENTE" 
+
         try {
-          // Armamos la dirección completa en un solo string como lo pide el panel
           const direccionCompleta = `${formData.calle} ${formData.numero}, ${formData.comuna}, ${formData.region}`;
 
           const nuevoPedido = {
@@ -61,15 +59,14 @@ export default function CheckoutPage() {
               rut: formData.rut,
               address: direccionCompleta
             },
-            // Mapeamos los items para asegurarnos de que la talla se llame "size"
             items: cartItems.map(item => ({
               ...item,
               size: item.selectedSize 
             })),
             total: getCartTotal(),
-            status: "Pendiente", // El panel lee este estado exacto
+            status: "Pendiente", 
             paymentMethod: metodoPago,
-            createdAt: serverTimestamp() // Formato de hora nativo de Firebase
+            createdAt: serverTimestamp() 
           };
           
           // ¡Importante! Lo enviamos a la colección "orders"
@@ -80,10 +77,8 @@ export default function CheckoutPage() {
         } catch (fbError) {
           console.error("Error guardando el pedido en Firebase:", fbError);
         }
-        //  FIN DEL CÓDIGO DE FIREBASE 
 
 
-        // 🔥 Si la API devuelve un token... Redirigimos al pago
         if (data.token) {
           window.location.href = `${data.url}?token_ws=${data.token}`;
         } else {
@@ -107,7 +102,6 @@ export default function CheckoutPage() {
         </h1>
 
         <form onSubmit={handlePagar} className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* FORMULARIO DE ENVÍO */}
           <div className="lg:col-span-7 space-y-8 text-left">
             <div>
               <h2 className="text-sm font-bold uppercase tracking-widest text-zinc-400 mb-6 border-b border-zinc-900 pb-2">
@@ -139,7 +133,6 @@ export default function CheckoutPage() {
                 3. Método de Pago
               </h2>
               <div className="space-y-3">
-                {/* OPCIÓN VENTI */}
                 <label className={`flex items-center justify-between p-4 border cursor-pointer transition-colors ${metodoPago === 'venti' ? 'border-white bg-zinc-950' : 'border-zinc-900 bg-transparent hover:border-zinc-700'}`}>
                   <div className="flex items-center gap-3">
                     <input type="radio" name="payment" checked={metodoPago === "venti"} onChange={() => setMetodoPago("venti")} className="accent-white cursor-pointer" />
@@ -148,7 +141,6 @@ export default function CheckoutPage() {
                   <span className="text-xs text-zinc-400">Tarjetas y Transferencias</span>
                 </label>
 
-                {/* OPCIÓN MERCADOPAGO */}
                 <label className={`flex items-center justify-between p-4 border cursor-pointer transition-colors ${metodoPago === 'mercadopago' ? 'border-white bg-zinc-950' : 'border-zinc-900 bg-transparent hover:border-zinc-700'}`}>
                   <div className="flex items-center gap-3">
                     <input type="radio" name="payment" checked={metodoPago === "mercadopago"} onChange={() => setMetodoPago("mercadopago")} className="accent-white cursor-pointer" />
@@ -157,7 +149,6 @@ export default function CheckoutPage() {
                   <span className="text-xs text-zinc-400">Tarjetas de Crédito / Débito</span>
                 </label>
 
-                {/* OPCIÓN WEBPAY / TRANSBANK */}
                 <label className={`flex items-center justify-between p-4 border cursor-pointer transition-colors ${metodoPago === 'webpay' ? 'border-white bg-zinc-950' : 'border-zinc-900 bg-transparent hover:border-zinc-700'}`}>
                   <div className="flex items-center gap-3">
                     <input type="radio" name="payment" checked={metodoPago === "webpay"} onChange={() => setMetodoPago("webpay")} className="accent-white cursor-pointer" />
@@ -169,7 +160,6 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          {/* RESUMEN DE COMPRA */}
           <div className="lg:col-span-5">
             <div className="border border-zinc-900 bg-zinc-950 p-6 sticky top-28 text-left">
               <h2 className="text-sm font-bold uppercase tracking-widest border-b border-zinc-900 pb-4 mb-6">Tu Carrito</h2>

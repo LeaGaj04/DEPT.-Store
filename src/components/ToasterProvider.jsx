@@ -1,4 +1,4 @@
-"use client"; // Esto es clave, le dice a Next.js que esto corre en el navegador
+"use client";
 import { Toaster } from "react-hot-toast";
 
 export default function ToasterProvider() {
