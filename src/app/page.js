@@ -17,37 +17,53 @@ const getImagePath = (product) => {
   if (name.includes('beanie') || category.includes('beanie')) return '/products/beanie.jpg';
   if (name.includes('trucker') || category.includes('trucker')) return '/products/trucker.jpg';
 
-  // Si en la base de datos hay una imagen específica guardada, la usamos como plan B
   if (product.image) return product.image;
   if (product.imageUrl) return product.imageUrl;
 
-  // Si nada coincide, no devuelve nada para EVITAR el bucle infinito del error 404
   return '';
 };
 
-// 👇 TARJETA DE PRODUCTO 👇
+// 👇 TARJETA DE PRODUCTO BLINDADA (SOPORTA ARRAYS Y MAPAS) 👇
 function ProductCard({ product, isNew }) {
   const { addToCart } = useCart();
   const [showSizes, setShowSizes] = useState(false);
   const isAgotado = product.status === "Agotado";
 
-  // Obtenemos la imagen segura
   const imagenProducto = getImagePath(product);
 
-  // Función 1: Al presionar Agregar
+  // 🔥 NORMALIZACIÓN DE TALLAS: Extrae una lista limpia de tallas válidas según el formato en DB
+  const obtenerListaTallas = () => {
+    if (!product.sizes) return [];
+    
+    // Si viene en formato Mapa de Firestore { S: 5, M: 0, L: 2 }
+    if (typeof product.sizes === "object" && !Array.isArray(product.sizes)) {
+      // Devolvemos solo las tallas que tengan stock real mayor a cero
+      return Object.keys(product.sizes).filter(size => product.sizes[size] > 0);
+    }
+    
+    // Si viene en formato Arreglo antiguo ["S", "M", "L"]
+    if (Array.isArray(product.sizes)) {
+      return product.sizes;
+    }
+    
+    return [];
+  };
+
+  const listaTallasDisponibles = obtenerListaTallas();
+
   const handleIntentarAgregar = (e) => {
     e.stopPropagation();
     e.preventDefault();
     if (isAgotado) return;
 
-    if (!product.sizes || product.sizes.length === 0) {
+    // Si no tiene tallas asignadas o están vacías, se asume talla Única
+    if (listaTallasDisponibles.length === 0) {
       agregarAlCarritoFinal(e, "U");
     } else {
       setShowSizes(true);
     }
   };
 
-  // Función 2: Al elegir la talla final
   const agregarAlCarritoFinal = (e, sizeSelected) => {
     e.stopPropagation();
     e.preventDefault();
@@ -62,7 +78,6 @@ function ProductCard({ product, isNew }) {
       >
         <div className="flex-1 w-0 p-4">
           <div className="flex items-start">
-            {/* Foto del Producto Arreglada: SIN onError */}
             <div className="flex-shrink-0 pt-0.5">
               <img
                 className="h-14 w-14 rounded-sm object-cover border border-zinc-800 bg-zinc-950"
@@ -70,7 +85,6 @@ function ProductCard({ product, isNew }) {
                 alt={product.name}
               />
             </div>
-            {/* Textos */}
             <div className="ml-3 flex-1">
               <p className="text-sm font-bold text-white uppercase tracking-tight">
                 {product.name}
@@ -84,7 +98,6 @@ function ProductCard({ product, isNew }) {
             </div>
           </div>
         </div>
-        {/* Botón para cerrar */}
         <div className="flex border-l border-zinc-800">
           <button
             onClick={() => toast.dismiss(t.id)}
@@ -101,7 +114,6 @@ function ProductCard({ product, isNew }) {
     <div className="group flex flex-col h-full bg-zinc-950 p-3 border border-transparent hover:border-zinc-900 transition-colors">
       <Link href={`/producto/${product.id}`} className="block cursor-pointer flex-grow">
         <div className="overflow-hidden bg-zinc-900 aspect-square relative mb-4">
-          {/* Foto Principal Arreglada: SIN onError */}
           <img
             src={imagenProducto}
             alt={product.name}
@@ -123,7 +135,7 @@ function ProductCard({ product, isNew }) {
         </p>
       </Link>
 
-      {/* ⚡ ZONA DINÁMICA DE COMPRA */}
+      {/* ⚡ ZONA DINÁMICA DE COMPRA MUTABLE */}
       <div className="mt-auto pt-2 h-10">
         {!showSizes ? (
           <button
@@ -136,7 +148,7 @@ function ProductCard({ product, isNew }) {
           </button>
         ) : (
           <div className="w-full h-full flex gap-1 animate-in fade-in zoom-in duration-200">
-            {product.sizes.map((size) => (
+            {listaTallasDisponibles.map((size) => (
               <button
                 key={size}
                 onClick={(e) => agregarAlCarritoFinal(e, size)}
@@ -157,6 +169,7 @@ function ProductCard({ product, isNew }) {
     </div>
   );
 }
+
 // 👇 PÁGINA PRINCIPAL 👇
 export default function HomePage() {
   const [newArrivals, setNewArrivals] = useState([]);
@@ -169,13 +182,12 @@ export default function HomePage() {
       try {
         const querySnapshot = await getDocs(collection(db, "products"));
         
-        // 1. Obtenemos los productos y limpiamos tallas de gorros
         const allProducts = querySnapshot.docs.map(doc => {
           const data = doc.data();
           const category = (data.category || "").toLowerCase();
           const name = (data.name || "").toLowerCase();
 
-          // 🔥 FILTRO BLINDADO
+          // Limpiamos de forma segura las tallas de gorros para tratarlos directo como Talla Única
           if (
             category.includes("beanie") || name.includes("beanie") ||
             category.includes("trucker") || name.includes("trucker") ||
@@ -187,15 +199,12 @@ export default function HomePage() {
           return { id: doc.id, ...data };
         });
 
-        // 2. ORDENAMOS LOS PRODUCTOS (Esta es la variable que faltaba)
-        // Ordenamos por fecha de creación (de más nuevo a más viejo)
         const sortedProducts = allProducts.sort((a, b) => {
           const timeA = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
           const timeB = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
           return timeB - timeA;
         });
 
-        // 3. Asignamos los productos ya ordenados a sus categorías
         setNewArrivals(sortedProducts.slice(0, 4));
 
         const filteredBeanies = sortedProducts.filter(p => p.category === "Beanies" || p.category === "beanies" || p.name.toLowerCase().includes("beanie"));
