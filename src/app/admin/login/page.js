@@ -14,6 +14,11 @@ export default function AdminLogin() {
     e.preventDefault();
     try {
       await signInWithEmailAndPassword(auth, email, password);
+      
+      // 🔥 LA MAGIA PARA EL MIDDLEWARE 🔥
+      // Guardamos una cookie accesible en todo el sitio que expira en 8 horas (28800 segundos)
+      document.cookie = "admin_session=true; path=/; max-age=28800";
+
       router.push("/admin/dashboard");
     } catch (err) {
       setError("Credenciales incorrectas. Intenta de nuevo.");
