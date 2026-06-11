@@ -48,8 +48,12 @@ export default function ProductPage() {
           setProduct(prodData);
           setMainImage(urlImagenLocal);
 
-          if (data.sizes && data.sizes.length === 1) {
-            setSelectedSize(data.sizes[0]);
+          // ACTUALIZACIÓN: Control para seleccionar automáticamente si viene una sola talla en el mapa
+          if (data.sizes) {
+            const disponibles = Object.keys(data.sizes);
+            if (disponibles.length === 1) {
+              setSelectedSize(disponibles[0]);
+            }
           }
 
           // Productos relacionados
@@ -184,24 +188,37 @@ export default function ProductPage() {
               <p className="text-sm text-zinc-500 mt-2">Los gastos de envío se calculan en el checkout.</p>
             </div>
 
-            {/* Selector de Tallas (Estilo Cuadrícula) */}
+            {/* Selector de Tallas (Estilo Cuadrícula Adaptado al Stock Real) */}
             <div className="mb-8">
               <div className="flex justify-between items-center mb-3">
                 <span className="font-bold uppercase text-sm tracking-widest text-zinc-300">Talla</span>
               </div>
               <div className="flex flex-wrap gap-3">
-                {product.sizes && product.sizes.map((size) => (
-                  <button
-                    key={size}
-                    onClick={() => setSelectedSize(size)}
-                    className={`w-14 h-14 border flex items-center justify-center font-bold transition-all uppercase
-                      ${selectedSize === size
-                        ? 'bg-white text-black border-white'
-                        : 'bg-black text-white border-zinc-700 hover:border-zinc-400'}`}
-                  >
-                    {size}
-                  </button>
-                ))}
+                {product.sizes && Object.keys(product.sizes).map((size) => {
+                  const stockDisponible = product.sizes[size] || 0;
+                  const estaAgotado = stockDisponible <= 0;
+
+                  return (
+                    <button
+                      key={size}
+                      disabled={estaAgotado}
+                      onClick={() => setSelectedSize(size)}
+                      className={`w-14 h-14 border flex flex-col items-center justify-center font-bold transition-all uppercase relative
+                        ${estaAgotado
+                          ? 'bg-zinc-950 text-zinc-600 border-zinc-900 line-through cursor-not-allowed opacity-30'
+                          : selectedSize === size
+                            ? 'bg-white text-black border-white'
+                            : 'bg-black text-white border-zinc-700 hover:border-zinc-400'
+                        }`}
+                    >
+                      <span className="text-sm">{size}</span>
+                      {/* Badge discreto si solo queda 1 prenda disponible */}
+                      {!estaAgotado && stockDisponible === 1 && (
+                        <span className="absolute bottom-0.5 text-[7px] text-red-500 font-black tracking-tight animate-pulse">1 QDN</span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
