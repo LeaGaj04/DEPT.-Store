@@ -90,6 +90,8 @@ El proyecto está estructurado utilizando **Next.js (App Router)**, separando de
 
 ### 🖥️ Interfaz de Usuario (UI)
 
+
 <img width="1904" height="945" alt="image" src="https://github.com/user-attachments/assets/36f38270-3525-42fb-85a4-c85e8113dd1a" />
+
 
 *Captura de pantalla de la sección de inicio, diseñada con un enfoque minimalista, oscuro y responsivo para la cultura streetwear.*
