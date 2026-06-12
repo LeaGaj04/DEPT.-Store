@@ -87,8 +87,11 @@ El proyecto está estructurado utilizando **Next.js (App Router)**, separando de
     └── 📁 lib/              
         └── firebase.js
 
-## 🖥️ Interfaz de Usuario (UI)
 
-<img width="1903" height="946" alt="image" src="https://github.com/user-attachments/assets/c2581190-9822-45b1-9c6f-d486e42c6b6e" />
 
-**Captura de pantalla de la sección de inicio, diseñada con un enfoque minimalista y oscuro responsivo para la cultura streetwear.**
+
+### 🖥️ Interfaz de Usuario (UI)
+
+<img width="1903" height="946" alt="DEPT Store Home Preview" src="https://github.com/user-attachments/assets/c2581190-9822">
+
+*Captura de pantalla de la sección de inicio, diseñada con un enfoque minimalista, oscuro y responsivo para la cultura streetwear.*
