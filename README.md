@@ -90,8 +90,4 @@ El proyecto está estructurado utilizando **Next.js (App Router)**, separando de
 
 
 
-### 🖥️ Interfaz de Usuario (UI)
-
-<img width="1903" height="946" alt="DEPT Store Home Preview" src="https://github.com/user-attachments/assets/c2581190-9822">
-
-*Captura de pantalla de la sección de inicio, diseñada con un enfoque minimalista, oscuro y responsivo para la cultura streetwear.*
+## Interfaz de Usuario
