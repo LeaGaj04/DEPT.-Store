@@ -32,7 +32,7 @@ Sigue estos pasos para correr el proyecto en tu entorno de desarrollo local:
    git clone [https://github.com/LeaGaj04/DEPT.-Store.git](https://github.com/LeaGaj04/DEPT.-Store.git)
    cd DEPT.-Store
 
-Instala las dependencias:
+   Instala las dependencias:
    Puedes usar npm, yarn, pnpm o bun:
 
    Bash
@@ -41,13 +41,14 @@ Instala las dependencias:
    Configura las variables de entorno:
    Crea un archivo .env.local en la raíz del proyecto y agrega tus credenciales correspondientes a Firebase y las pasarelas de pago.
 
-Inicia el servidor de desarrollo:
+   Inicia el servidor de desarrollo:
 
    Bash
    npm run dev
    
    Abre la aplicación:
    Navega a http://localhost:3000 en tu navegador para ver la tienda en funcionamiento.
+
 
 ## Mapa del Proyecto
 
