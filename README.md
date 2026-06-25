@@ -5,8 +5,7 @@
 ## 📌 Sobre el Proyecto
 **DEPT. Store** es un e-commerce minimalista y de alto rendimiento diseñado para una marca de streetwear chilena. Desarrollado con un enfoque en una estética de tonos oscuros y siluetas *boxy fit*, la plataforma ofrece una experiencia de compra fluida mediante un catálogo público interactivo y un panel de administración protegido para gestionar el stock y el inventario en tiempo real.
 
-*(Aquí puedes añadir una captura adicional de tu catálogo o dashboard)*
-![Captura de pantalla de la sección de Catálogo o Admin](URL_DE_TU_NUEVA_IMAGEN_AQUI)
+<img width="1898" height="874" alt="image" src="https://github.com/user-attachments/assets/d6b44137-b784-42d7-b48b-7ed4a06a298b" />
 
 ## 🚀 Funcionalidades Principales
 - **Catálogo Dinámico:** Visualización de productos de streetwear con filtros y detalles.
