@@ -2,12 +2,12 @@
 
 🔗 **[Ver Demo en Vivo (Vercel)](https://dept-theta.vercel.app)**
 
-## 📌 Sobre el Proyecto
+##  Sobre el Proyecto
 **DEPT. Store** es un e-commerce minimalista y de alto rendimiento diseñado para una marca de streetwear chilena. Desarrollado con un enfoque en una estética de tonos oscuros y siluetas *boxy fit*, la plataforma ofrece una experiencia de compra fluida mediante un catálogo público interactivo y un panel de administración protegido para gestionar el stock y el inventario en tiempo real.
 
 <img width="1898" height="874" alt="image" src="https://github.com/user-attachments/assets/d6b44137-b784-42d7-b48b-7ed4a06a298b" />
 
-## 🚀 Funcionalidades Principales
+##  Funcionalidades Principales
 - **Catálogo Dinámico:** Visualización de productos de streetwear con filtros y detalles.
 - **Panel de Administración (Admin Dashboard):** Gestión segura de inventario, actualización de stock y revisión de pedidos en tiempo real.
 - **Carrito de Compras:** Sistema de carrito persistente y fluido usando Context API.
@@ -15,7 +15,7 @@
 - **Responsive Design:** Interfaz completamente adaptada a dispositivos móviles, tablets y escritorio.
 - **Base de Datos en Tiempo Real:** Sincronización rápida y segura del inventario.
 
-## 🛠️ Tecnologías Utilizadas
+##  Tecnologías Utilizadas
 - **Framework:** [Next.js (App Router)](https://nextjs.org/)
 - **Librería UI:** [React](https://reactjs.org/)
 - **Estilos:** [Tailwind CSS](https://tailwindcss.com/)
@@ -23,7 +23,7 @@
 - **Lenguaje:** JavaScript
 - **Despliegue:** [Vercel](https://vercel.com/)
 
-## ⚙️ Cómo ejecutarlo localmente
+##  Cómo ejecutarlo localmente
 
 Sigue estos pasos para correr el proyecto en tu entorno de desarrollo local:
 
