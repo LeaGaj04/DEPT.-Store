@@ -1,40 +1,37 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DEPT. Store
 
-## Getting Started
+🔗 **[Ver Demo en Vivo (Vercel)](https://dept-theta.vercel.app)**
 
-First, run the development server:
+## 📌 Sobre el Proyecto
+**DEPT. Store** es un e-commerce minimalista y de alto rendimiento diseñado para una marca de streetwear chilena. Desarrollado con un enfoque en una estética de tonos oscuros y siluetas *boxy fit*, la plataforma ofrece una experiencia de compra fluida mediante un catálogo público interactivo y un panel de administración protegido para gestionar el stock y el inventario en tiempo real.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+*(Aquí puedes añadir una captura adicional de tu catálogo o dashboard)*
+![Captura de pantalla de la sección de Catálogo o Admin](URL_DE_TU_NUEVA_IMAGEN_AQUI)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🚀 Funcionalidades Principales
+- **Catálogo Dinámico:** Visualización de productos de streetwear con filtros y detalles.
+- **Panel de Administración (Admin Dashboard):** Gestión segura de inventario, actualización de stock y revisión de pedidos en tiempo real.
+- **Carrito de Compras:** Sistema de carrito persistente y fluido usando Context API.
+- **Pasarelas de Pago:** Integración escalable preparada para MercadoPago, Venti y Webpay.
+- **Responsive Design:** Interfaz completamente adaptada a dispositivos móviles, tablets y escritorio.
+- **Base de Datos en Tiempo Real:** Sincronización rápida y segura del inventario.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠️ Tecnologías Utilizadas
+- **Framework:** [Next.js (App Router)](https://nextjs.org/)
+- **Librería UI:** [React](https://reactjs.org/)
+- **Estilos:** [Tailwind CSS](https://tailwindcss.com/)
+- **Base de Datos y Backend:** [Firebase](https://firebase.google.com/)
+- **Lenguaje:** JavaScript
+- **Despliegue:** [Vercel](https://vercel.com/)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ⚙️ Cómo ejecutarlo localmente
 
-## Learn More
+Sigue estos pasos para correr el proyecto en tu entorno de desarrollo local:
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
+1. **Clona el repositorio:**
+   ```bash
+   git clone [https://github.com/LeaGaj04/DEPT.-Store.git](https://github.com/LeaGaj04/DEPT.-Store.git)
+   cd DEPT.-Store
 
 ## Mapa del Proyecto
 
