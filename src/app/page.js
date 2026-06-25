@@ -135,7 +135,6 @@ function ProductCard({ product, isNew }) {
         </p>
       </Link>
 
-      {/* ⚡ ZONA DINÁMICA DE COMPRA MUTABLE */}
       <div className="mt-auto pt-2 h-10">
         {!showSizes ? (
           <button
