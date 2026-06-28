@@ -109,3 +109,8 @@ El proyecto está estructurado utilizando **Next.js (App Router)**, separando de
 
 
 *Captura de pantalla de la sección de inicio, diseñada con un enfoque minimalista, oscuro y responsivo para la cultura streetwear.*
+
+---
+
+**Aviso:** Debido a la expiración del modo de prueba de Firebase, los archivos subidos y los procesos en tiempo real se encuentran actualmente obsoletos/inactivos en la demostración pública.
+
